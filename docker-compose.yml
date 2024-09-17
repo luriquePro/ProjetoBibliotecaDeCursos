@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - redis-net
+    volumes:
+      - redis-data:/data
+
+  redis-insights:
+    image: redislabs/redisinsight:latest
+    container_name: redis-insights
+    ports:
+      - "8001:8001"
+    networks:
+      - redis-net
+    depends_on:
+      - redis
+
+volumes:
+  redis-data:
+
+networks:
+  redis-net:
+    driver: bridge

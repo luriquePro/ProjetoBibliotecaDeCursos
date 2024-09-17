@@ -1,0 +1,65 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "run-project-tests-debug",
+			"type": "shell",
+			"command": "bash",
+			"args": ["-c", "PROJECT_DIR=$(dirname ${file}); cd \"${PROJECT_DIR}\"; npm run test:debug"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "run-project-tests-dev",
+			"type": "shell",
+			"command": "bash",
+			"args": ["-c", "PROJECT_DIR=$(dirname ${file}); cd \"${PROJECT_DIR}\"; npm run test:dev"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "run-project-dev",
+			"type": "shell",
+			"command": "bash",
+			"args": ["-c", "PROJECT_DIR=$(dirname ${file}); cd \"${PROJECT_DIR}\"; npm run dev"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "run-project-build",
+			"type": "shell",
+			"command": "bash",
+			"args": ["-c", "PROJECT_DIR=$(dirname ${file}); cd \"${PROJECT_DIR}\"; npm run build"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		}
+	]
+}

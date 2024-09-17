@@ -1,0 +1,22 @@
+[
+	{
+		"key": "ctrl+shift+d",
+		"command": "workbench.action.tasks.runTask",
+		"args": "run-project-tests-debug"
+	},
+	{
+		"key": "ctrl+shift+g",
+		"command": "workbench.action.tasks.runTask",
+		"args": "run-project-tests-dev"
+	},
+	{
+		"key": "ctrl+shift+1",
+		"command": "workbench.action.tasks.runTask",
+		"args": "run-project-dev"
+	},
+	{
+		"key": "ctrl+shift+b",
+		"command": "workbench.action.tasks.runTask",
+		"args": "run-project-build"
+	}
+]
