@@ -90,8 +90,8 @@
 
 ## Fluxo de Desenvolvimento:
 
-- [ ] | #01 | Criar estrutura básica de arquivos e pastas.
-  - [ ] Iniciar Servidor na Porta `3000`
+- [X] | #01 | Criar estrutura básica de arquivos e pastas.
+  - [X] Iniciar Servidor na Porta `3000`
 - [ ] | #02 | Implementar rotas, serviços, entidades, controladores e repositórios.
   - [ ] Configurar Rotas
   - [ ] Configurar Controllers

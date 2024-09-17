@@ -15,6 +15,7 @@ src/jobs/**.ts
 
 src/middlewares/errorMiddleware.ts
 src/server.ts
+src/index.ts
 src/utils/**.ts
 src/utils/util.ts
 src/models_html/** */.ts

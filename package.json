@@ -4,11 +4,15 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"dev": "tsx src/index.ts --watch",
+		"dev": "tsx watch src/index.ts ",
 		"build": "tsx src/index.ts",
 		"test": "NODE_OPTIONS=--experimental-vm-modules npx jest --injectGlobals false --runInBand test/",
 		"test:dev": "NODE_OPTIONS=--experimental-vm-modules npx jest --injectGlobals false --runInBand --watchAll test/",
-		"test:debug": "node --experimental-vm-modules --inspect-brk node_modules/.bin/jest --injectGlobals false --runInBand --watchAll test/"
+		"test:debug": "node --experimental-vm-modules --inspect-brk node_modules/.bin/jest --injectGlobals false --runInBand --watchAll test/",
+		"lint": "eslint src/**/*.ts --ignore-path .gitignore --ignore-path .eslintignore .",
+		"lint:fix": "eslint src/**/*.ts --fix --ignore-path .gitignore --ignore-path .eslintignore .",
+		"format": "prettier --check --ignore-path .gitignore --ignore-path .prettierignore .",
+		"format:fix": "prettier --write --ignore-path .gitignore --ignore-path .prettierignore ."
 	},
 	"keywords": [],
 	"author": "lurique",
