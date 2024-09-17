@@ -90,20 +90,15 @@
 
 ## Fluxo de Desenvolvimento:
 
-- [ ] Configurar ambiente de desenvolvimento e dependências.
-- [ ] Criar estrutura básica de arquivos e pastas.
-- [ ] Implementar rotas, serviços, entidades, controladores e repositórios.
-- [ ] Configurar e iniciar o servidor.
-- [ ] Testar a aplicação para garantir que todas as partes estão funcionando corretamente.
-- [ ] Documentar a API e a estrutura do servidor.
-- [ ] Configurar whitelist de IPs, se necessário.
-- [ ] Aplicar variáveis de ambiente com `.env` para configuração sensível.
-
-## Tasks
-
-- #01 [ ] Iniciar Servidor na Porta `3000`
-- #02 [ ] Configurar Rotas
-- #03 [ ] Configurar Controllers
-- #04 [ ] Linkar Controllers nos Services
-- #05 [ ] Criar arquivo padrão de Classes [`Controllers`, `Services` e `Entities`]
-- #06 [ ] Adicionar possibilidade de queries pelas rotas
+- [ ] | #01 | Criar estrutura básica de arquivos e pastas.
+  - [ ] Iniciar Servidor na Porta `3000`
+- [ ] | #02 | Implementar rotas, serviços, entidades, controladores e repositórios.
+  - [ ] Configurar Rotas
+  - [ ] Configurar Controllers
+  - [ ] Configurar Services
+  - [ ] Adicionar um arquivo chamado `indexItem.js` para mostrar modelagem default. Ex: `IndexController.js`
+  - [ ] Adicionar possibilidade de queries pelas rotas
+  - [ ] Adicionar Possibilidade de params pelas rotas
+- [ ] | #03 | Documentar a API e a estrutura do servidor.
+- [ ] | #04 | Configurar whitelist de IPs, se necessário.
+- [ ] | #05 | Aplicar variáveis de ambiente com `.env` para configuração sensível.
