@@ -95,10 +95,9 @@
 - [ ] | #02 | Implementar rotas, serviços, entidades, controladores e repositórios.
   - [x] Configurar Rotas
   - [x] Configurar Controllers
-  - [ ] Configurar Services
-  - [ ] Adicionar um arquivo chamado `indexItem.js` para mostrar modelagem default. Ex: `IndexController.js`
-  - [ ] Adicionar possibilidade de queries pelas rotas
-  - [ ] Adicionar Possibilidade de params pelas rotas
+  - [x] Configurar Services
+  - [x] Adicionar um arquivo chamado `indexItem.js` para mostrar modelagem default. Ex: `IndexController.js`
+  - [x] Adicionar possibilidade de queries pelas rotas
 - [ ] | #03 | Documentar a API e a estrutura do servidor.
 - [ ] | #04 | Configurar whitelist de IPs, se necessário.
 - [ ] | #05 | Aplicar variáveis de ambiente com `.env` para configuração sensível.

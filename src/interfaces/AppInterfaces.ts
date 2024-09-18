@@ -1,6 +1,9 @@
 import { IncomingMessage, ServerResponse } from "http";
 
-export type IRequest = IncomingMessage;
+export interface IRequest extends IncomingMessage {
+	query?: { [key: string]: string | number };
+}
+
 export type IResponse = ServerResponse<IncomingMessage> & { req: IncomingMessage };
 
 export interface IRoute {

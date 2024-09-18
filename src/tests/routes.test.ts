@@ -5,6 +5,7 @@ import { IncomingMessage, ServerResponse } from "http";
 describe("#Routes Suite", () => {
 	afterEach(() => {
 		jest.resetAllMocks();
+		jest.clearAllMocks();
 	});
 
 	test("Should return a message with 'Hello, World!' if route exists and method is valid", async () => {
@@ -40,18 +41,27 @@ describe("#Routes Suite", () => {
 		expect(response.end).toHaveBeenCalledWith(JSON.stringify({ message: "Method not allowed!", is_error: true }));
 	});
 
+	test("Should return a dinamic message with query", async () => {
+		const request = { url: "/jest/say-hello?revere=Luiz", method: "GET" } as IncomingMessage;
+		const response = { end: jest.fn(), statusCode: 0 } as unknown as ServerResponse;
+		const routes = new Routes();
+
+		await routes.run(request, response);
+
+		expect(response.statusCode).toBe(200);
+		expect(response.end).toHaveBeenCalledWith(JSON.stringify({ message: "Hello, Luiz!", is_error: false }));
+	});
+
 	test("Should throw an default error if route handle break", async () => {
-		jest.spyOn(Routes.prototype, "getRoutes").mockImplementation(() => {
-			return [
-				{
-					path: "/jest/say-hello",
-					method: "GET",
-					handler: () => {
-						throw new Error("Something went wrong!");
-					},
+		jest.spyOn(Routes.prototype, "getRoutes").mockReturnValue([
+			{
+				path: "/jest/say-hello",
+				method: "GET",
+				handler: () => {
+					throw new Error("Something went wrong!");
 				},
-			];
-		});
+			},
+		]);
 
 		const request = { url: "/jest/say-hello", method: "GET" } as IncomingMessage;
 		const response = { end: jest.fn(), statusCode: 0 } as unknown as ServerResponse;
