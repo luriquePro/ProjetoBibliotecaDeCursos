@@ -1,9 +1,14 @@
-import { createServer } from "node:http";
+import { createServer } from "http";
+import { Routes } from "./routes.ts";
 
-const server = createServer((request, response) => {
+const server = createServer(async (request, response) => {
+	// Configurações do Servidor
 	response.setHeader("Content-Type", "application/json");
-	response.statusCode = 200;
-	return response.end(JSON.stringify({ message: "Hello, World!", is_error: false }));
+	// Cors
+
+	// Rotas
+	const ROUTER = new Routes();
+	await ROUTER.run(request, response);
 });
 
 export { server };

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	parser: "@typescript-eslint/parser",
 	extends: [
 		"prettier",
@@ -57,4 +57,12 @@ module.exports = {
 		],
 		"prettier/prettier": "error",
 	},
+	overrides: [
+		{
+			files: ["tests/**/*"],
+			env: {
+				jest: true,
+			},
+		},
+	],
 };

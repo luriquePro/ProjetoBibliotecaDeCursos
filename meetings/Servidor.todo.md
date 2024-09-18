@@ -90,11 +90,11 @@
 
 ## Fluxo de Desenvolvimento:
 
-- [X] | #01 | Criar estrutura básica de arquivos e pastas.
-  - [X] Iniciar Servidor na Porta `3000`
+- [x] | #01 | Criar estrutura básica de arquivos e pastas.
+  - [x] Iniciar Servidor na Porta `3000`
 - [ ] | #02 | Implementar rotas, serviços, entidades, controladores e repositórios.
-  - [ ] Configurar Rotas
-  - [ ] Configurar Controllers
+  - [x] Configurar Rotas
+  - [x] Configurar Controllers
   - [ ] Configurar Services
   - [ ] Adicionar um arquivo chamado `indexItem.js` para mostrar modelagem default. Ex: `IndexController.js`
   - [ ] Adicionar possibilidade de queries pelas rotas
@@ -102,3 +102,4 @@
 - [ ] | #03 | Documentar a API e a estrutura do servidor.
 - [ ] | #04 | Configurar whitelist de IPs, se necessário.
 - [ ] | #05 | Aplicar variáveis de ambiente com `.env` para configuração sensível.
+- [ ] | #06 | Adicionar configuração de LOGS e Cache.
