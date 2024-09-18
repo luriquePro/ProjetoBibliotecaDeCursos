@@ -8,3 +8,9 @@ export interface IRoute {
 	method: "POST" | "GET" | "PATCH" | "DELETE";
 	handler: (req: IRequest, res: IResponse) => Promise<IResponse> | IResponse;
 }
+
+export interface IMessageReturn {
+	message: string;
+	is_error: boolean;
+	statusCode: number;
+}

@@ -1,7 +1,9 @@
+import { IndexService } from "./../services/IndexService.ts";
 import { IndexController } from "../controllers/IndexController.ts";
 import { IRoute } from "../interfaces/AppInterfaces.ts";
 
-const indexController = new IndexController();
+const indexService = new IndexService();
+const indexController = new IndexController(indexService);
 
 export const IndexRoutes: IRoute[] = [
 	{

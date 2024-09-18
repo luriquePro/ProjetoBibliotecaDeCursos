@@ -1,8 +1,11 @@
 import { IRequest, IResponse } from "../interfaces/AppInterfaces.ts";
+import { IIndexService } from "../services/IndexService.ts";
 
 export class IndexController {
-	public async index(_request: IRequest, response: IResponse) {
-		response.statusCode = 200;
-		return response.end(JSON.stringify({ message: "Hello, World!", is_error: false }));
+	constructor(private readonly indexService: IIndexService) {}
+	public async index(request: IRequest, response: IResponse) {
+		const { is_error, message, statusCode } = await this.indexService.index();
+		response.statusCode = statusCode;
+		return response.end(JSON.stringify({ message, is_error }));
 	}
 }
