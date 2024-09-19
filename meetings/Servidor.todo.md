@@ -99,7 +99,7 @@
   - [x] Adicionar um arquivo chamado `indexItem.js` para mostrar modelagem default. Ex: `IndexController.js`
   - [x] Adicionar possibilidade de queries pelas rotas
 - [ ] | #03 | Documentar a API e a estrutura do servidor.
-- [ ] | #04 | Configurar whitelist de IPs, se necessário.
-- [ ] | #05 | Aplicar variáveis de ambiente com `.env` para configuração sensível.
+- [x] | #04 | Configurar whitelist de IPs, se necessário.
+- [x] | #05 | Aplicar variáveis de ambiente com `.env` para configuração sensível.
 - [ ] | #06 | Adicionar configuração de LOGS e Cache.
-- [ ] | #07 | Usar Fastfy.
+- [x] | #07 | Usar Express.
