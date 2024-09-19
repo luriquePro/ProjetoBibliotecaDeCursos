@@ -1,11 +1,10 @@
-import { server } from "./server.ts";
+import { app } from "./server.ts";
 
-const PORT = 3333;
-
-const IS_TEST_AMBIENT = process.env.NODE_ENV === "test";
+const PORT = Number(process.env.PORT!);
+const IS_TEST_AMBIENT = process.env.NODE_ENV === "TEST";
 
 if (!IS_TEST_AMBIENT) {
-	server.listen(PORT, () => {
+	app.listen({ port: PORT }, () => {
 		console.log(`Servidor iniciado na url: http://localhost:${PORT}.`);
 	});
 }

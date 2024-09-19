@@ -102,3 +102,4 @@
 - [ ] | #04 | Configurar whitelist de IPs, se necessário.
 - [ ] | #05 | Aplicar variáveis de ambiente com `.env` para configuração sensível.
 - [ ] | #06 | Adicionar configuração de LOGS e Cache.
+- [ ] | #07 | Usar Fastfy.

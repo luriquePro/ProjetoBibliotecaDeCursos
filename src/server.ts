@@ -1,14 +1,30 @@
-import { createServer } from "http";
-import { Routes } from "./routes.ts";
+import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import { routes } from "./routes.ts";
 
-const server = createServer(async (request, response) => {
-	// Configurações do Servidor
-	response.setHeader("Content-Type", "application/json");
-	// Cors
+dotenv.config();
 
-	// Rotas
-	const ROUTER = new Routes();
-	await ROUTER.run(request, response);
-});
+const IS_PRODUCTION = process.env.NODE_ENV === "PROD";
+const IPS = process.env.IPS;
 
-export { server };
+const whitelist = IPS?.split(",")!;
+const corsOptions = {
+	origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
+		if (whitelist.indexOf(origin) !== -1) {
+			callback(null, true);
+		} else {
+			callback(null, false);
+		}
+	},
+};
+
+const app = express();
+
+app.use(routes);
+
+if (IS_PRODUCTION) {
+	app.use(cors(corsOptions as any));
+}
+
+export { app };
