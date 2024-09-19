@@ -17,7 +17,8 @@ class UserService implements IUserService {
 		private readonly userValidations: IUserValidation,
 		private readonly userRepository: IUserRepository,
 	) {}
-	public async registerUser({ full_name, email, password, cpf, birth_date, login }: IUserRegisterDTO) {
+
+	public async registerUser({ full_name, email, password, cpf, birth_date, login }: IUserRegisterDTO): Promise<IUserRegisterReturn> {
 		const dataValidation = { full_name, email, password, cpf, birth_date, login };
 		await this.userValidations.registerUser(dataValidation);
 

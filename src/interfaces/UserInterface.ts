@@ -55,7 +55,7 @@ export interface IUserValidation {
 
 // Interface of Class UserService
 export interface IUserService {
-	registerUser(dataRegistration: IUserRegisterDTO): Promise<any>;
+	registerUser(dataRegistration: IUserRegisterDTO): Promise<IUserRegisterReturn>;
 }
 
 // Interface of Class UserRepository
