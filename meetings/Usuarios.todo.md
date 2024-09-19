@@ -84,3 +84,4 @@
 - [] | #01 | Registrar um Usuario
   - Criar validação para registrar um usuario
   - Criar o Service para registrar um Usuario
+  - Criar Model e Repository do Usuario

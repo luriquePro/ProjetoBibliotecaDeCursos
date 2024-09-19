@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import { routes } from "./routes.ts";
+import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -22,6 +23,12 @@ const corsOptions = {
 const app = express();
 
 app.use(routes);
+
+const URL = process.env.MONGODB_URI!;
+mongoose
+	.connect(URL, { dbName: process.env.MONGODB_DATABASE })
+	.then(() => console.log(`MongoDB connected!`))
+	.catch(err => console.log("Error to connect mongoDB"));
 
 if (IS_PRODUCTION) {
 	app.use(cors(corsOptions as any));

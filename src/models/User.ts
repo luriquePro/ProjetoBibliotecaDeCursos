@@ -1,0 +1,21 @@
+import { Schema, model, Document, Model } from "mongoose";
+import { IUserRegisterRepository } from "../interfaces/UserInterface.ts";
+
+export interface IUserMongo extends Partial<Omit<Document, "id">>, IUserRegisterRepository {}
+
+const UserSchema = new Schema<IUserMongo>(
+	{
+		id: { type: String, required: true, trim: true, index: true, unique: true },
+		first_name: { type: String, required: true, trim: true, index: true },
+		last_name: { type: String, required: true, trim: true, index: true },
+		cpf: { type: String, required: true, trim: true, index: true, unique: true },
+		email: { type: String, required: true, trim: true, index: true, unique: true },
+		login: { type: String, required: true, trim: true, index: true, unique: true },
+		password: { type: String, required: true, trim: true, index: true },
+		birth_date: { type: Date, required: true, index: true },
+		status: { type: String, required: true, trim: true, index: true },
+	},
+	{ timestamps: true },
+);
+
+export const UserModel = model<IUserMongo>("users", UserSchema);

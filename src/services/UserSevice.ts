@@ -60,13 +60,13 @@ class UserService implements IUserService {
 		};
 
 		// Save User
-		await this.userRepository.createUser(userCreate);
+		const result = await this.userRepository.createUser(userCreate);
 
 		// Data Return to Client
 		const returnData: IUserRegisterReturn = {
-			id: userCreate.id,
-			login: userCreate.login,
-			first_name: userCreate.first_name,
+			id: result.id,
+			login: result.login,
+			first_name: result.first_name,
 			is_error: false,
 			message: "User registered successfully",
 		};

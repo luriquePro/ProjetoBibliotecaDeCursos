@@ -64,5 +64,5 @@ export interface IUserRepository {
 	findUserByEmail(email: string): Promise<IUserRegisterRepository | null>;
 	findUserByLogin(login: string): Promise<IUserRegisterRepository | null>;
 	findUserByCPF(login: string): Promise<IUserRegisterRepository | null>;
-	createUser(user: IUserRegisterRepository): Promise<IUserRegisterRepositoryReturn>;
+	createUser(user: IUserRegisterRepository): Promise<IUserRegisterRepository>;
 }

@@ -3,7 +3,7 @@ import { IUserRegisterDTO, IUserRegisterReturn, IUserRepository, IUserService, I
 import { UserService } from "../../services/UserSevice.ts";
 import { UserValidations } from "../../validations/UserValidations.ts";
 import { UserRepository } from "../../repositories/UserRepository.ts";
-import { HashPassword } from "../../utils/HashPassword.ts";
+import { UserModel } from "../../models/User.ts";
 
 describe("#UserService Suite", () => {
 	let userService: IUserService;
@@ -13,7 +13,7 @@ describe("#UserService Suite", () => {
 
 	beforeEach(() => {
 		userValidation = new UserValidations();
-		userRepository = new UserRepository();
+		userRepository = new UserRepository(UserModel);
 
 		userMocked = {
 			full_name: "Valid Full Name",
@@ -64,22 +64,26 @@ describe("#UserService Suite", () => {
 
 		test("Should be able to register a new user", async () => {
 			// Arrange
-			jest.spyOn(userRepository, userRepository.findUserByCPF.name as any).mockReturnValue(undefined);
-			jest.spyOn(userRepository, userRepository.findUserByEmail.name as any).mockReturnValue(undefined);
-			jest.spyOn(userRepository, userRepository.findUserByLogin.name as any).mockReturnValue(undefined);
-
 			const [firstName] = userMocked.full_name.split(" ");
 
-			// Act
-			const result = await userService.registerUser(userMocked);
-
 			const expected: IUserRegisterReturn = {
-				id: result.id,
+				id: "aaa",
 				login: userMocked.login,
 				first_name: firstName,
 				is_error: false,
 				message: "User registered successfully",
 			};
+
+			jest.spyOn(userRepository, userRepository.findUserByCPF.name as any).mockReturnValue(undefined);
+			jest.spyOn(userRepository, userRepository.findUserByEmail.name as any).mockReturnValue(undefined);
+			jest.spyOn(userRepository, userRepository.findUserByLogin.name as any).mockReturnValue(undefined);
+			jest
+				.spyOn(userRepository, userRepository.createUser.name as any)
+				.mockReturnValue(expected)
+				.mockImplementation(() => expected);
+
+			// Act
+			const result = await userService.registerUser(userMocked);
 
 			// Assert
 			expect(result).toEqual(expected);

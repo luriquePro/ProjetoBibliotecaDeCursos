@@ -1,3 +1,4 @@
+import { UserModel } from "./models/User.ts";
 import { UserRepository } from "./repositories/UserRepository.ts";
 import { app } from "./server.ts";
 import { UserService } from "./services/UserSevice.ts";
@@ -20,7 +21,7 @@ if (!IS_TEST_AMBIENT) {
 		login: "lurique",
 	};
 
-	const userService = new UserService(new UserValidations(), new UserRepository());
+	const userService = new UserService(new UserValidations(), new UserRepository(UserModel));
 	userService.registerUser(userDTO).then(data => {
 		console.log(data);
 	});
