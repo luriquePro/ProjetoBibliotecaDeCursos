@@ -20,7 +20,7 @@
 			"label": "run-project-tests-dev",
 			"type": "shell",
 			"command": "bash",
-			"args": ["-c", "PROJECT_DIR=$(dirname ${file}); cd \"${PROJECT_DIR}\"; npm run test:dev"],
+			"args": ["-c", "PROJECT_DIR=$(dirname ${file}); ECHO \"${PROJECT_DIR}\"; cd \"${PROJECT_DIR}\"; npm run test:dev"],
 			"group": {
 				"kind": "build",
 				"isDefault": true

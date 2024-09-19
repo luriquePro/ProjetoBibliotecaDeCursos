@@ -78,3 +78,8 @@
 - [ ] Negar datas de nascimento inválidas (datas futuras)
 - [ ] Negar login inválido (ex: login com espaços ou caracteres especiais)
 - [ ] Negar campos obrigatórios vazios (Name, Email, Password, Date of Birth, CPF, Login)
+
+## Tasks:
+
+- [] | #01 | Registrar um Usuario
+  - Criar validação para registrar um usuario
