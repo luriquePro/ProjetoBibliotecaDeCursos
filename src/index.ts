@@ -12,17 +12,17 @@ if (!IS_TEST_AMBIENT) {
 		console.log(`Servidor iniciado na url: http://localhost:${PORT}.`);
 	});
 
-	const userDTO = {
-		full_name: "Luiz Henrique Dos Santos Gonzaga",
-		email: "luiz.prog.henri@gmail.com",
-		password: "Xandy1011!",
-		cpf: "71079969403",
-		birth_date: "2004-03-06T03:00:00.000Z",
-		login: "lurique",
-	};
+	// const userDTO = {
+	// 	full_name: "Luiz Henrique Dos Santos Gonzaga",
+	// 	email: "luiz.prog.henri@gmail.com",
+	// 	password: "Xandy1011!",
+	// 	cpf: "71079969403",
+	// 	birth_date: "2004-03-06T03:00:00.000Z",
+	// 	login: "lurique",
+	// };
 
-	const userService = new UserService(new UserValidations(), new UserRepository(UserModel));
-	userService.registerUser(userDTO).then(data => {
-		console.log(data);
-	});
+	// const userService = new UserService(new UserValidations(), new UserRepository(UserModel));
+	// userService.registerUser(userDTO).then(data => {
+	// 	console.log(data);
+	// });
 }
