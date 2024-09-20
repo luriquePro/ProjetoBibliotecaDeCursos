@@ -12,6 +12,6 @@ const userRepository = new UserRepository(UserModel);
 const userService = new UserService(userValidations, userRepository);
 const userController = new UserController(userService);
 
-UserRoutes.get("/", userController.registerUser.bind(userController));
+UserRoutes.post("/register", userController.registerUser.bind(userController));
 
 export { UserRoutes };
