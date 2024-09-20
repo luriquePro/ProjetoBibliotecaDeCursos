@@ -2,13 +2,17 @@
 
 ## Índice
 
+- [Licença](#licenca)
 - [Funcionalidades](#funcionalidades)
 - [Estrutura](#estrutura)
-- [Demonstração](#demonstração)
 - [Como rodar o projeto?](#como-rodar-o-projeto)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Autores](#autores)
 - [Próximas Features Planejadas](#próximas-features-planejadas)
+
+## Licença
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 🖥️ Funcionalidades
 
@@ -558,15 +562,63 @@ Neste caso, seria acessado pela rota
 
 ### Definir Shared
 
-### Fazer testes
-
-## Demonstração
-
 ## Como rodar o projeto?
 
-## Tecnologias ultilziadas
+### Pré-requisitos
+
+Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas: [Git](https://git-scm.com),
+[Node.js](https://nodejs.org/en/). Além disto é bom ter um editor para trabalhar com o código como [VSCode](https://code.visualstudio.com/).
+
+### 🎲 Rodando o Back End (servidor)
+
+```bash
+# Clone este repositório
+$ git clone <https://github.com/luriquePro/projeto-ada>
+
+# Acesse a pasta do projeto no terminal/cmd
+$ cd projeto-ada
+
+# Instale as dependências
+$ npm install
+
+# Crie um .env
+$ touch .env
+
+# Coloque os valores de .env.example em .env
+$ cp .env.example .env
+
+# Execute os testes
+$ npm run test
+$ npm run test:dev
+$ npm run test:debug
+
+# Execute a aplicação em modo de desenvolvimento
+$ npm run dev
+
+# Execute a aplicação em modo de produção
+$ npm run build
+$ npm run start
+
+
+# O servidor inciará na porta:3333 - acesse <http://localhost:3333>
+```
+
+## 🛠 Tecnologias ultilziadas
+
+- [Nodejs 20.17](https://nodejs.org/pt/download/package-manager)
+- [Typescript 5.6](https://www.typescriptlang.org/)
+- [Express 4.21](https://expressjs.com/pt-br/)
+- [Moment 2.3](https://momentjs.com/)
+- [Mongoose 8.6](https://mongoosejs.com/)
+- [MD5 2.3](https://github.com/pvorb/node-md5)
+- [Eslint 8.57](https://eslint.org/)
+- [Prettier 3.3](https://prettier.io/)
+- [NTL 5.1](https://github.com/ruyadorno/ntl)
+- [Jest 29.7](https://jestjs.io/pt-BR/)
 
 ## Próximas features Planejadas
+
+- [!] CRUD de cursos ⚠️
 
 ## 👨‍💻 Autores
 
