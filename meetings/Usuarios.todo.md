@@ -36,7 +36,7 @@
 - [ ] **Login**:
   - Mínimo de 4 caracteres
   - Apenas caracteres alfanuméricos permitidos (A-Z, a-z, 0-9)
-  - Sem espaços ou caracteres especiais
+  - Sem espaços ou caracteres especiaisw
   - Deve ser único no sistema
   - Máximo de 20 caracteres
 

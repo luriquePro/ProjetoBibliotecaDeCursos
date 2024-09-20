@@ -1,0 +1,4 @@
+export enum INDEX_STATUS {
+	ACTIVE = "ACTIVE",
+	DELETED = "DELETED",
+}

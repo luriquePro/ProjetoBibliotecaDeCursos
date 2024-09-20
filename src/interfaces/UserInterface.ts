@@ -18,10 +18,12 @@ export interface IUserRegisterReturn {
 	first_name: string;
 	is_error: false;
 	message: "User registered successfully";
+	status_code: 201;
 }
 
 // interface of Data that save in repository
-export interface IUserRegisterRepository {
+
+export interface IUserDTO {
 	id: string;
 	first_name: string;
 	last_name: string;
@@ -33,8 +35,10 @@ export interface IUserRegisterRepository {
 	status: USER_STATUS;
 }
 
+export interface IUserRegisterRepository extends IUserDTO {}
+
 // interface of Data that repository return
-export interface IUserRegisterRepositoryReturn extends IUserRegisterRepository {
+export interface IUserRegisterRepositoryReturn extends IUserDTO {
 	_id: mongoose.Types.ObjectId;
 	createdAt: Date;
 	updatedAt: Date;
@@ -60,9 +64,9 @@ export interface IUserService {
 
 // Interface of Class UserRepository
 export interface IUserRepository {
-	findOneByObj(filter: IUserFind): Promise<IUserRegisterRepository | null>;
-	findUserByEmail(email: string): Promise<IUserRegisterRepository | null>;
-	findUserByLogin(login: string): Promise<IUserRegisterRepository | null>;
-	findUserByCPF(login: string): Promise<IUserRegisterRepository | null>;
-	createUser(user: IUserRegisterRepository): Promise<IUserRegisterRepository>;
+	findOneByObj(filter: IUserFind): Promise<IUserDTO | null>;
+	findUserByEmail(email: string): Promise<IUserDTO | null>;
+	findUserByLogin(login: string): Promise<IUserDTO | null>;
+	findUserByCPF(login: string): Promise<IUserDTO | null>;
+	createUser(user: IUserRegisterRepository): Promise<IUserDTO>;
 }

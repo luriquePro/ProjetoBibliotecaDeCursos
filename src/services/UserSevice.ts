@@ -69,6 +69,7 @@ class UserService implements IUserService {
 			first_name: result.first_name,
 			is_error: false,
 			message: "User registered successfully",
+			status_code: 201,
 		};
 
 		return returnData;

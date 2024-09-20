@@ -1,7 +1,7 @@
-import { Schema, model, Document, Model } from "mongoose";
-import { IUserRegisterRepository } from "../interfaces/UserInterface.ts";
+import { Schema, model, Document } from "mongoose";
+import { IUserDTO } from "../interfaces/UserInterface.ts";
 
-export interface IUserMongo extends Partial<Omit<Document, "id">>, IUserRegisterRepository {}
+export interface IUserMongo extends Partial<Omit<Document, "id">>, IUserDTO {}
 
 const UserSchema = new Schema<IUserMongo>(
 	{

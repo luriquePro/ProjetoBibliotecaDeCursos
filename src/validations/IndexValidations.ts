@@ -1,14 +1,11 @@
 import * as yup from "yup";
 import { YupValidator } from "../utils/YupValidator.ts";
+import { IIndexValidations } from "../interfaces/IndexInterface.ts";
 
-class IndexValidations {
-	public async index({ a, b }: { a: string; b: number }) {
-		const dataValidation = { a, b };
-
-		const shapeValidation = {
-			a: yup.string().strict().required(),
-			b: yup.number().strict().required(),
-		};
+class IndexValidations implements IIndexValidations {
+	public async index({ name }: { name?: string }) {
+		const dataValidation = { name };
+		const shapeValidation = { name: yup.string() };
 
 		await YupValidator(shapeValidation, dataValidation);
 	}
