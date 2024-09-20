@@ -16,9 +16,9 @@
 
 ## 🖥️ Funcionalidades
 
-- [!] Usuários ✅
+- [ ] Usuários ✅
   - [x] Cadastrar Usuário ✅
-  - [!] Resetar Senha ⚠️
+  - [ ] Resetar Senha ⚠️
   - [ ] Autenticar ❌
 
 ## 📒 Estrutura
@@ -618,7 +618,7 @@ $ npm run start
 
 ## Próximas features Planejadas
 
-- [!] CRUD de cursos ⚠️
+- [ ] CRUD de cursos ⚠️
 
 ## 👨‍💻 Autores
 
