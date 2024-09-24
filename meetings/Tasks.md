@@ -10,7 +10,7 @@
 
 ## Servidor
 
-- [ ] Adicionar Middleware para `RateLimit`;
+- [x] Adicionar Middleware para `RateLimit`;
 - [ ] Adicionar Middleware de `Autenticação`;
 - [ ] Adicionar `Swagger`;
 - [ ] Criar função padrão para retorno de Erros;
