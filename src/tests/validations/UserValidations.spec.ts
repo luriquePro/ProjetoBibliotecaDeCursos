@@ -216,4 +216,21 @@ describe("#UserValidator Suite", () => {
 			});
 		});
 	});
+
+	describe("#Request Reset Password", () => {
+		test("Should throw an error if email is empty", async () => {
+			const emailRequesterMocked = "";
+			await expect(uservalidations.requestResetPassword(emailRequesterMocked)).rejects.toThrow(new Error("Email is a required field"));
+		});
+
+		test("Should throw an error if email isn't valid ", async () => {
+			const emailRequesterMocked = "INVALIDEMAIL";
+			await expect(uservalidations.requestResetPassword(emailRequesterMocked)).rejects.toThrow(new Error("Enter a valid email"));
+		});
+
+		test("Should not throw an error if email is valid", async () => {
+			const emailRequesterMocked = "VALIDEMAIL@email.com";
+			await expect(uservalidations.requestResetPassword(emailRequesterMocked)).resolves.not.toThrow();
+		});
+	});
 });

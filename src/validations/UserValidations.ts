@@ -81,6 +81,13 @@ class UserValidations implements IUserValidation {
 
 		await YupValidator(shapeValidation, dataValidation);
 	}
+
+	public async requestResetPassword(emailRequester: string): Promise<void> {
+		const dataValidation = { email: emailRequester };
+		const shapeValidation = { email: yup.string().required("Email is a required field").email("Enter a valid email") };
+
+		await YupValidator(shapeValidation, dataValidation);
+	}
 }
 
 export { UserValidations };
