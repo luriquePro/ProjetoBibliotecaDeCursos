@@ -587,6 +587,9 @@ $ touch .env
 # Coloque os valores de .env.example em .env
 $ cp .env.example .env
 
+# Ajustar a versão do nodejs
+$ nvm i
+
 # Execute os testes
 $ npm run test
 $ npm run test:dev
