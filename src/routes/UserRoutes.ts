@@ -13,5 +13,6 @@ const userService = new UserService(userValidations, userRepository);
 const userController = new UserController(userService);
 
 UserRoutes.post("/register", userController.registerUser.bind(userController));
+UserRoutes.post("/request-reset-password", userController.requestResetPassword.bind(userController));
 
 export { UserRoutes };

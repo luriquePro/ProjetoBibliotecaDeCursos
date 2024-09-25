@@ -17,6 +17,12 @@ class UserController {
 		const result = await this.userService.registerUser(dataRegistration);
 		return response.json(result);
 	}
+
+	public async requestResetPassword(request: Request, response: Response): Promise<Response> {
+		const emailRequester = request.body.email;
+		const result = await this.userService.requestResetPassword(emailRequester);
+		return response.json(result);
+	}
 }
 
 export { UserController };

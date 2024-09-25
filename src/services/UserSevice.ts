@@ -1,9 +1,11 @@
 import moment from "moment";
 import {
+	IResetPasswordCode,
 	IUserRegisterDTO,
 	IUserRegisterRepository,
 	IUserRegisterReturn,
 	IUserRepository,
+	IUserRequestResetPasswordReturn,
 	IUserService,
 	IUserValidation,
 } from "../interfaces/UserInterface.ts";
@@ -11,11 +13,13 @@ import { BadRequestError } from "../shared/errors/AppError.ts";
 import { HashPassword } from "../utils/HashPassword.ts";
 import { IdGenerate } from "../utils/IdGenerate.ts";
 import { USER_STATUS } from "../constants/USER.ts";
+import { IRedisRepository } from "../interfaces/RedisRepository.ts";
 
 class UserService implements IUserService {
 	constructor(
 		private readonly userValidations: IUserValidation,
 		private readonly userRepository: IUserRepository,
+		private readonly redisRepository: IRedisRepository,
 	) {}
 
 	public async registerUser({ full_name, email, password, cpf, birth_date, login }: IUserRegisterDTO): Promise<IUserRegisterReturn> {
@@ -70,6 +74,41 @@ class UserService implements IUserService {
 			is_error: false,
 			message: "User registered successfully",
 			status_code: 201,
+		};
+
+		return returnData;
+	}
+
+	public async requestResetPassword(emailRequester: string): Promise<IUserRequestResetPasswordReturn> {
+		// Validate email
+		await this.userValidations.requestResetPassword(emailRequester);
+
+		// Check if email exists
+		const userWithEmailExists = await this.userRepository.findUserByEmail(emailRequester);
+		if (!userWithEmailExists) {
+			throw new BadRequestError("This email is not being used, please enter a valid email address");
+		}
+
+		// Generate a reset password code
+		const resetPasswordCode = IdGenerate();
+
+		// Create a resetCode object
+		const resetCode: IResetPasswordCode = {
+			user_id: userWithEmailExists.id,
+			email: emailRequester,
+			code: resetPasswordCode,
+			limit_datetime: moment().utc().add(5, "minutes").toISOString(),
+		};
+
+		// Save reset password code
+		await this.redisRepository.saveResetPasswordCode(resetCode, 5 * 60);
+
+		// Data Return to Client
+		const returnData: IUserRequestResetPasswordReturn = {
+			is_error: false,
+			message: "Reset code sent successfully",
+			status_code: 200,
+			reset_code: resetCode.code,
 		};
 
 		return returnData;

@@ -52,14 +52,31 @@ export interface IUserFind {
 	cpf?: string;
 }
 
+// Interface of data saved in Redis
+export interface IResetPasswordCode {
+	code: string;
+	limit_datetime: string;
+	user_id: string;
+	email: string;
+}
+
+export interface IUserRequestResetPasswordReturn {
+	is_error: false;
+	message: "Reset code sent successfully";
+	status_code: 200;
+	reset_code: string;
+}
+
 // Interface of Class UserValidations
 export interface IUserValidation {
 	registerUser(dataValidation: IUserRegisterDTO): Promise<void>;
+	requestResetPassword(emailRequester: string): Promise<void>;
 }
 
 // Interface of Class UserService
 export interface IUserService {
 	registerUser(dataRegistration: IUserRegisterDTO): Promise<IUserRegisterReturn>;
+	requestResetPassword(emailRequester: string): Promise<IUserRequestResetPasswordReturn>;
 }
 
 // Interface of Class UserRepository

@@ -7,20 +7,24 @@ import mongoose from "mongoose";
 dotenv.config();
 
 const IS_PRODUCTION = process.env.NODE_ENV === "PROD";
-const IPS = process.env.IPS;
-
-const whitelist = IPS?.split(",")!;
-const corsOptions = {
-	origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
-		if (whitelist.indexOf(origin) !== -1) {
-			callback(null, true);
-		} else {
-			callback(null, false);
-		}
-	},
-};
 
 const app = express();
+if (IS_PRODUCTION) {
+	const IPS = process.env.IPS;
+
+	const whitelist = IPS?.split(",")! ?? ["http://localhost:3000"];
+	const corsOptions = {
+		origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
+			if (whitelist.indexOf(origin) !== -1) {
+				callback(null, true);
+			} else {
+				callback(null, false);
+			}
+		},
+	};
+
+	app.use(cors(corsOptions as any));
+}
 
 app.use(routes);
 
@@ -29,9 +33,5 @@ mongoose
 	.connect(URL, { dbName: process.env.MONGODB_DATABASE })
 	.then(() => console.log(`MongoDB connected!`))
 	.catch(err => console.log("Error to connect mongoDB"));
-
-if (IS_PRODUCTION) {
-	app.use(cors(corsOptions as any));
-}
 
 export { app };

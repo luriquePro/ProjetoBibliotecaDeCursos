@@ -1,6 +1,8 @@
 import { IRequestCounter } from "../interfaces/AppInterface.ts";
+import { IRedisRepository } from "../interfaces/RedisRepository.ts";
+import { IResetPasswordCode } from "../interfaces/UserInterface.ts";
 
-export class RedisRepository {
+export class RedisRepository implements IRedisRepository {
 	constructor(private readonly redisClient: any) {
 		this.redisClient.on("error", (err: string) => {
 			console.error("Redis Client Error", err);
@@ -15,5 +17,10 @@ export class RedisRepository {
 
 	public async getRequestCounter(key: string) {
 		return await this.redisClient.get(key);
+	}
+
+	public async saveResetPasswordCode(resetCode: IResetPasswordCode, timeEXP: number) {
+		const key = `reset-password-code-${resetCode.code}`;
+		await this.redisClient.set(key, JSON.stringify(resetCode), { EX: timeEXP });
 	}
 }
