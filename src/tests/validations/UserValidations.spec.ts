@@ -233,4 +233,16 @@ describe("#UserValidator Suite", () => {
 			await expect(uservalidations.requestResetPassword(emailRequesterMocked)).resolves.not.toThrow();
 		});
 	});
+
+	describe("#Confirm Reset Password", () => {
+		test("Should throw an error if code is empty", async () => {
+			const codeMocked = "";
+			await expect(uservalidations.confirmResetPassword(codeMocked)).rejects.toThrow(new Error("Code is a required field"));
+		});
+
+		test("Should not throw an error if code is valid", async () => {
+			const codeMocked = "VALIDCODE";
+			await expect(uservalidations.confirmResetPassword(codeMocked)).resolves.not.toThrow();
+		});
+	});
 });

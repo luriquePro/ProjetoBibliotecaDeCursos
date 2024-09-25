@@ -23,6 +23,12 @@ class UserController {
 		const result = await this.userService.requestResetPassword(emailRequester);
 		return response.json(result);
 	}
+
+	public async confirmResetPassword(request: Request, response: Response): Promise<Response> {
+		const resetPasswordCode = request.body.reset_password_code;
+		const result = await this.userService.confirmResetPassword(resetPasswordCode);
+		return response.json(result);
+	}
 }
 
 export { UserController };

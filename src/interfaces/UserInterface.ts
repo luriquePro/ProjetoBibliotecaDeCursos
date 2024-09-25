@@ -71,12 +71,14 @@ export interface IUserRequestResetPasswordReturn {
 export interface IUserValidation {
 	registerUser(dataValidation: IUserRegisterDTO): Promise<void>;
 	requestResetPassword(emailRequester: string): Promise<void>;
+	confirmResetPassword(resetPasswordCode: string): Promise<void>;
 }
 
 // Interface of Class UserService
 export interface IUserService {
 	registerUser(dataRegistration: IUserRegisterDTO): Promise<IUserRegisterReturn>;
 	requestResetPassword(emailRequester: string): Promise<IUserRequestResetPasswordReturn>;
+	confirmResetPassword(resetPasswordCode: string): Promise<string>;
 }
 
 // Interface of Class UserRepository

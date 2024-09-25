@@ -88,6 +88,13 @@ class UserValidations implements IUserValidation {
 
 		await YupValidator(shapeValidation, dataValidation);
 	}
+
+	public async confirmResetPassword(resetPasswordCode: string): Promise<void> {
+		const dataValidation = { code: resetPasswordCode };
+		const shapeValidation = { code: yup.string().required("Code is a required field") };
+
+		await YupValidator(shapeValidation, dataValidation);
+	}
 }
 
 export { UserValidations };

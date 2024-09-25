@@ -113,6 +113,20 @@ class UserService implements IUserService {
 
 		return returnData;
 	}
+
+	public async confirmResetPassword(resetCode: string): Promise<string> {
+		// Validate reset code
+		await this.userValidations.confirmResetPassword(resetCode);
+
+		// Check if reset code exists
+		const resetCodeExists = await this.redisRepository.getResetPasswordCode(resetCode);
+		if (!resetCodeExists) {
+			throw new BadRequestError("Invalid reset code");
+		}
+
+		// Receber a senha e validar
+		return "";
+	}
 }
 
 export { UserService };
