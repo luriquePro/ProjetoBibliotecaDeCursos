@@ -92,6 +92,17 @@ class UserService implements IUserService {
 			throw new BadRequestError("This email is not being used, please enter a valid email address");
 		}
 
+		// Check if user is active
+		if (userWithEmailExists.status !== USER_STATUS.ACTIVE) {
+			throw new BadRequestError("This user is not active, please contact your administrator");
+		}
+
+		// Check if user just have a code
+		const resetCodeExists = await this.redisRepository.getResetPasswordCode(emailRequester);
+		if (resetCodeExists) {
+			throw new BadRequestError("You already have a reset code, please check your email");
+		}
+
 		// Generate a reset password code
 		const resetPasswordCode = IdGenerate();
 

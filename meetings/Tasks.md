@@ -4,9 +4,9 @@
 
 - [x] Cadastrar Usuário;
 - [ ] Alterar Senha do Usuário;
-- [ ] Resetar Senha do Usuário;
+- [x] Resetar Senha do Usuário;
 - [ ] Autenticar o Usuário;
-- [ ] Adicionar Cache para o código de Resetar Senha do Usuario;
+- [x] Adicionar Cache para o código de Resetar Senha do Usuario;
 
 ## Servidor
 

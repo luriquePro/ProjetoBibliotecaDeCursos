@@ -119,8 +119,22 @@ describe("#UserService Suite", () => {
 			expect(userService.requestResetPassword(userMocked)).rejects.toThrow("This email is not being used, please enter a valid email address");
 		});
 
+		test("Should throw an error if user status is not active", async () => {
+			jest.spyOn(userRepository, userRepository.findUserByEmail.name as any).mockReturnValue({ ...userMocked, status: USER_STATUS.DELETED });
+
+			expect(userService.requestResetPassword(userMocked)).rejects.toThrow("This user is not active, please contact your administrator");
+		});
+
+		test("Should throw an error if user just have a code", async () => {
+			jest.spyOn(userRepository, userRepository.findUserByEmail.name as any).mockReturnValue({ ...userMocked, status: USER_STATUS.ACTIVE });
+			jest.spyOn(redisRepository, redisRepository.getResetPasswordCode.name as any).mockReturnValue({ code: "VALIDCODE" });
+
+			expect(userService.requestResetPassword(userMocked)).rejects.toThrow("You already have a reset code, please check your email");
+		});
+
 		test("Should not throw an error if email is use", async () => {
-			jest.spyOn(userRepository, userRepository.findUserByEmail.name as any).mockReturnValue(userMocked);
+			jest.spyOn(userRepository, userRepository.findUserByEmail.name as any).mockReturnValue({ ...userMocked, status: USER_STATUS.ACTIVE });
+			jest.spyOn(redisRepository, redisRepository.getResetPasswordCode.name as any).mockReturnValue(null);
 
 			await expect(userService.requestResetPassword(userMocked)).resolves.not.toThrow();
 		});
