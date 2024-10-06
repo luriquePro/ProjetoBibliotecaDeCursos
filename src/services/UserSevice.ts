@@ -123,8 +123,30 @@ class UserService implements IUserService {
 		// Check if reset code exists
 		const resetCodeExists = await this.redisRepository.getResetPasswordCode(code);
 		if (!resetCodeExists) {
-			throw new BadRequestError("Invalid reset code");
+			throw new BadRequestError("Invalid code");
 		}
+
+		// Check if this code is expired
+		if (moment().utc().isAfter(moment(resetCodeExists.limit_datetime))) {
+			throw new BadRequestError("Code expired");
+		}
+
+		// Check if user exists
+		const userExists = await this.userRepository.findUserById(resetCodeExists.user_id);
+		if (!userExists) {
+			throw new BadRequestError("User does not Exists");
+		}
+
+		// Check if User is active
+		if (userExists.status !== USER_STATUS.ACTIVE) {
+			throw new BadRequestError("User is not active");
+		}
+
+		// Hash password
+		const hashedPassword = HashPassword(password);
+
+		// Update User
+		await this.userRepository.updateUser({ id: userExists.id }, { $set: { password: hashedPassword } });
 
 		// Receber a senha e validar
 		return "";

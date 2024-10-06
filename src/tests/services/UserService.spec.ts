@@ -1,10 +1,21 @@
-import { describe, test, jest, afterEach, beforeEach, expect, beforeAll } from "@jest/globals";
-import { IUserRegisterDTO, IUserRegisterReturn, IUserRepository, IUserService, IUserValidation } from "../../interfaces/UserInterface.ts";
+import { describe, test, jest, afterEach, beforeEach, expect } from "@jest/globals";
+import {
+	IConfirmResetPassword,
+	IUserRegisterDTO,
+	IUserRegisterReturn,
+	IUserRepository,
+	IUserService,
+	IUserValidation,
+} from "../../interfaces/UserInterface.ts";
 import { UserService } from "../../services/UserSevice.ts";
 import { UserValidations } from "../../validations/UserValidations.ts";
 import { UserRepository } from "../../repositories/UserRepository.ts";
 import { UserModel } from "../../models/User.ts";
 import { IRedisRepository } from "../../interfaces/RedisRepository.ts";
+import { RedisRepository } from "../../repositories/RedisRepository.ts";
+import { client } from "../../models/Redis.ts";
+import moment from "moment";
+import { USER_STATUS } from "../../constants/USER.ts";
 
 describe("#UserService Suite", () => {
 	let userService: IUserService;
@@ -13,16 +24,10 @@ describe("#UserService Suite", () => {
 	let userRepository: IUserRepository;
 	let redisRepository: IRedisRepository;
 
-	beforeAll(() => {
-		redisRepository = {
-			saveResetPasswordCode: jest.fn().mockReturnValue(undefined),
-			getResetPasswordCode: jest.fn().mockReturnValue(null),
-		};
-	});
-
 	beforeEach(() => {
 		userValidation = new UserValidations();
 		userRepository = new UserRepository(UserModel);
+		redisRepository = new RedisRepository(client);
 
 		userService = new UserService(userValidation, userRepository, redisRepository);
 	});
@@ -109,14 +114,136 @@ describe("#UserService Suite", () => {
 
 		test("Should throw an error if email isn't use", async () => {
 			jest.spyOn(userRepository, userRepository.findUserByEmail.name as any).mockReturnValue(undefined);
+			jest.spyOn(redisRepository, redisRepository.saveResetPasswordCode.name as any).mockReturnValue(undefined);
 
-			expect(userService.requestResetPassword(userMocked.email)).rejects.toThrow("This email is not being used, please enter a valid email address");
+			expect(userService.requestResetPassword(userMocked)).rejects.toThrow("This email is not being used, please enter a valid email address");
 		});
 
 		test("Should not throw an error if email is use", async () => {
 			jest.spyOn(userRepository, userRepository.findUserByEmail.name as any).mockReturnValue(userMocked);
 
-			await expect(userService.requestResetPassword(userMocked.email)).resolves.not.toThrow();
+			await expect(userService.requestResetPassword(userMocked)).resolves.not.toThrow();
+		});
+	});
+
+	describe("#Reset Password", () => {
+		const confirmMocked: IConfirmResetPassword = {
+			code: "VALIDCODE",
+			password: "Vpass123!@",
+		};
+
+		beforeEach(() => {
+			jest.spyOn(userValidation, userValidation.confirmResetPassword.name as any).mockReturnValue(undefined);
+		});
+
+		test("Should throw an error if code does not exists", async () => {
+			jest.spyOn(redisRepository, redisRepository.getResetPasswordCode.name as any).mockReturnValue(undefined);
+			expect(userService.confirmResetPassword(confirmMocked)).rejects.toThrow("Invalid code");
+
+			expect(redisRepository.getResetPasswordCode).toHaveBeenCalledTimes(0);
+		});
+
+		test("Should throw an error if code is expired", async () => {
+			jest.spyOn(redisRepository, redisRepository.getResetPasswordCode.name as any).mockReturnValue({
+				code: confirmMocked.code,
+				email: "VALIDEMAIL",
+				limit_datetime: moment().utc().subtract(5, "minutes").toDate(),
+				user_id: "VALIDUSERID",
+			});
+
+			expect(userService.confirmResetPassword(confirmMocked)).rejects.toThrow("Code expired");
+		});
+
+		test("Should throw an error if user does not exists", async () => {
+			jest.spyOn(redisRepository, redisRepository.getResetPasswordCode.name as any).mockReturnValue({
+				code: confirmMocked.code,
+				email: "VALIDEMAIL",
+				limit_datetime: moment().utc().add(5, "minutes").toDate(),
+				user_id: "VALIDUSERID",
+			});
+
+			jest.spyOn(userRepository, userRepository.findUserById.name as any).mockReturnValue(undefined);
+
+			expect(userService.confirmResetPassword(confirmMocked)).rejects.toThrow("User does not Exists");
+		});
+
+		test("Should throw an error if user status is not active", async () => {
+			jest.spyOn(redisRepository, redisRepository.getResetPasswordCode.name as any).mockReturnValue({
+				code: confirmMocked.code,
+				email: "VALIDEMAIL",
+				limit_datetime: moment().utc().add(5, "minutes").toDate(),
+				user_id: "VALIDUSERID",
+			});
+
+			jest.spyOn(userRepository, userRepository.findUserById.name as any).mockReturnValue({
+				...userMocked,
+				status: USER_STATUS.DELETED,
+			});
+
+			expect(userService.confirmResetPassword(confirmMocked)).rejects.toThrow("User is not active");
+		});
+
+		test("Should not throw an error if user status is active", async () => {
+			jest.spyOn(redisRepository, redisRepository.getResetPasswordCode.name as any).mockReturnValue({
+				code: confirmMocked.code,
+				email: "VALIDEMAIL",
+				limit_datetime: moment().utc().add(5, "minutes").toDate(),
+				user_id: "VALIDUSERID",
+			});
+
+			jest.spyOn(userRepository, userRepository.findUserById.name as any).mockReturnValue({
+				...userMocked,
+				status: USER_STATUS.ACTIVE,
+			});
+
+			jest.spyOn(userRepository, userRepository.updateUser.name as any).mockReturnValue({
+				...userMocked,
+				status: USER_STATUS.ACTIVE,
+			});
+
+			await expect(userService.confirmResetPassword(confirmMocked)).resolves.not.toThrow();
+		});
+
+		test("Should not throw an error if code exists", async () => {
+			jest.spyOn(redisRepository, redisRepository.getResetPasswordCode.name as any).mockReturnValue({
+				code: confirmMocked.code,
+				email: "VALIDEMAIL",
+				limit_datetime: moment().utc().add(5, "minutes").toDate(),
+				user_id: "VALIDUSERID",
+			});
+
+			jest.spyOn(userRepository, userRepository.findUserById.name as any).mockReturnValue({
+				...userMocked,
+				status: USER_STATUS.ACTIVE,
+			});
+
+			jest.spyOn(userRepository, userRepository.updateUser.name as any).mockReturnValue({
+				...userMocked,
+				status: USER_STATUS.ACTIVE,
+			});
+
+			await expect(userService.confirmResetPassword(confirmMocked)).resolves.not.toThrow();
+		});
+
+		test("Should not throw an error if user exists", async () => {
+			jest.spyOn(redisRepository, redisRepository.getResetPasswordCode.name as any).mockReturnValue({
+				code: confirmMocked.code,
+				email: "VALIDEMAIL",
+				limit_datetime: moment().utc().add(5, "minutes").toDate(),
+				user_id: "VALIDUSERID",
+			});
+
+			jest.spyOn(userRepository, userRepository.findUserById.name as any).mockReturnValue({
+				...userMocked,
+				status: USER_STATUS.ACTIVE,
+			});
+
+			jest.spyOn(userRepository, userRepository.updateUser.name as any).mockReturnValue({
+				...userMocked,
+				status: USER_STATUS.ACTIVE,
+			});
+
+			await expect(userService.confirmResetPassword(confirmMocked)).resolves.not.toThrow();
 		});
 	});
 });

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { FilterQuery, UpdateQuery } from "mongoose";
 import { USER_STATUS } from "../constants/USER.ts";
 
 /* 
@@ -48,14 +48,6 @@ export interface IUserRegisterRepositoryReturn extends IUserDTO {
 	updatedAt: Date;
 }
 
-// interface of filter User by Object
-export interface IUserFind {
-	id?: string;
-	email?: string;
-	login?: string;
-	cpf?: string;
-}
-
 /*
 	#Reset Password
 */
@@ -100,9 +92,11 @@ export interface IUserService {
 
 // Interface of Class UserRepository
 export interface IUserRepository {
-	findOneByObj(filter: IUserFind): Promise<IUserDTO | null>;
+	findOneByObj(filter: FilterQuery<IUserDTO>): Promise<IUserDTO | null>;
 	findUserByEmail(email: string): Promise<IUserDTO | null>;
+	findUserById(id: string): Promise<IUserDTO | null>;
 	findUserByLogin(login: string): Promise<IUserDTO | null>;
 	findUserByCPF(login: string): Promise<IUserDTO | null>;
 	createUser(user: IUserRegisterRepository): Promise<IUserDTO>;
+	updateUser(filter: FilterQuery<IUserDTO>, dataUpdate: UpdateQuery<IUserDTO>): Promise<IUserDTO | null>;
 }
