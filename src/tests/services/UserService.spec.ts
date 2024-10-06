@@ -1,11 +1,9 @@
-import { describe, test, jest, afterEach, beforeEach, expect } from "@jest/globals";
+import { describe, test, jest, afterEach, beforeEach, expect, beforeAll } from "@jest/globals";
 import { IUserRegisterDTO, IUserRegisterReturn, IUserRepository, IUserService, IUserValidation } from "../../interfaces/UserInterface.ts";
 import { UserService } from "../../services/UserSevice.ts";
 import { UserValidations } from "../../validations/UserValidations.ts";
 import { UserRepository } from "../../repositories/UserRepository.ts";
 import { UserModel } from "../../models/User.ts";
-import { RedisRepository } from "../../repositories/RedisRepository.ts";
-import { client } from "../../models/Redis.ts";
 import { IRedisRepository } from "../../interfaces/RedisRepository.ts";
 
 describe("#UserService Suite", () => {
@@ -15,10 +13,16 @@ describe("#UserService Suite", () => {
 	let userRepository: IUserRepository;
 	let redisRepository: IRedisRepository;
 
+	beforeAll(() => {
+		redisRepository = {
+			saveResetPasswordCode: jest.fn().mockReturnValue(undefined),
+			getResetPasswordCode: jest.fn().mockReturnValue(null),
+		};
+	});
+
 	beforeEach(() => {
 		userValidation = new UserValidations();
 		userRepository = new UserRepository(UserModel);
-		redisRepository = new RedisRepository(client);
 
 		userService = new UserService(userValidation, userRepository, redisRepository);
 	});
@@ -111,7 +115,6 @@ describe("#UserService Suite", () => {
 
 		test("Should not throw an error if email is use", async () => {
 			jest.spyOn(userRepository, userRepository.findUserByEmail.name as any).mockReturnValue(userMocked);
-			jest.spyOn(redisRepository, redisRepository.saveResetPasswordCode.name as any).mockReturnValue(undefined);
 
 			await expect(userService.requestResetPassword(userMocked.email)).resolves.not.toThrow();
 		});

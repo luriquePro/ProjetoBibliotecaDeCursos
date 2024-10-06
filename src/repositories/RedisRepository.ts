@@ -8,7 +8,9 @@ export class RedisRepository implements IRedisRepository {
 			console.error("Redis Client Error", err);
 		});
 
-		this.redisClient.connect().then(() => console.log("Redis connected!"));
+		if (!this.redisClient.isOpen) {
+			this.redisClient.connect().then(() => console.log("Redis connected!"));
+		}
 	}
 
 	public async saveRequestCounter(key: string, requestCounter: IRequestCounter, timeEXP: number) {
@@ -22,5 +24,15 @@ export class RedisRepository implements IRedisRepository {
 	public async saveResetPasswordCode(resetCode: IResetPasswordCode, timeEXP: number) {
 		const key = `reset-password-code-${resetCode.code}`;
 		await this.redisClient.set(key, JSON.stringify(resetCode), { EX: timeEXP });
+	}
+	public async getResetPasswordCode(resetCode: string): Promise<IResetPasswordCode | null> {
+		const key = `reset-password-code-${resetCode}`;
+		const result = await this.redisClient.get(key);
+
+		if (result) {
+			return JSON.parse(result);
+		}
+
+		return null;
 	}
 }

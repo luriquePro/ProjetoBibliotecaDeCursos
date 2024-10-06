@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { IUserRegisterDTO, IUserService } from "../interfaces/UserInterface.ts";
+import { IConfirmResetPassword, IRequestResetPassword, IUserRegisterDTO, IUserService } from "../interfaces/UserInterface.ts";
 
 class UserController {
 	constructor(private readonly userService: IUserService) {}
@@ -19,14 +19,14 @@ class UserController {
 	}
 
 	public async requestResetPassword(request: Request, response: Response): Promise<Response> {
-		const emailRequester = request.body.email;
-		const result = await this.userService.requestResetPassword(emailRequester);
+		const dataRequestResetPassword: IRequestResetPassword = { email: request.body.email };
+		const result = await this.userService.requestResetPassword(dataRequestResetPassword);
 		return response.json(result);
 	}
 
 	public async confirmResetPassword(request: Request, response: Response): Promise<Response> {
-		const resetPasswordCode = request.body.reset_password_code;
-		const result = await this.userService.confirmResetPassword(resetPasswordCode);
+		const dataConfirmResetPassword: IConfirmResetPassword = { code: request.body.reset_password_code, password: request.body.new_password };
+		const result = await this.userService.confirmResetPassword(dataConfirmResetPassword);
 		return response.json(result);
 	}
 }

@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 import { USER_STATUS } from "../constants/USER.ts";
 
+/* 
+	#Register
+*/
+
 // interface of Data that comes directly to the controller
 export interface IUserRegisterDTO {
 	full_name: string;
@@ -52,6 +56,14 @@ export interface IUserFind {
 	cpf?: string;
 }
 
+/*
+	#Reset Password
+*/
+
+export interface IRequestResetPassword {
+	email: string;
+}
+
 // Interface of data saved in Redis
 export interface IResetPasswordCode {
 	code: string;
@@ -67,18 +79,23 @@ export interface IUserRequestResetPasswordReturn {
 	reset_code: string;
 }
 
+export interface IConfirmResetPassword {
+	password: string;
+	code: string;
+}
+
 // Interface of Class UserValidations
 export interface IUserValidation {
 	registerUser(dataValidation: IUserRegisterDTO): Promise<void>;
 	requestResetPassword(emailRequester: string): Promise<void>;
-	confirmResetPassword(resetPasswordCode: string): Promise<void>;
+	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<void>;
 }
 
 // Interface of Class UserService
 export interface IUserService {
 	registerUser(dataRegistration: IUserRegisterDTO): Promise<IUserRegisterReturn>;
-	requestResetPassword(emailRequester: string): Promise<IUserRequestResetPasswordReturn>;
-	confirmResetPassword(resetPasswordCode: string): Promise<string>;
+	requestResetPassword(dataRequestResetPassword: IRequestResetPassword): Promise<IUserRequestResetPasswordReturn>;
+	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<string>;
 }
 
 // Interface of Class UserRepository

@@ -1,5 +1,7 @@
 import moment from "moment";
 import {
+	IConfirmResetPassword,
+	IRequestResetPassword,
 	IResetPasswordCode,
 	IUserRegisterDTO,
 	IUserRegisterRepository,
@@ -79,7 +81,7 @@ class UserService implements IUserService {
 		return returnData;
 	}
 
-	public async requestResetPassword(emailRequester: string): Promise<IUserRequestResetPasswordReturn> {
+	public async requestResetPassword({ email: emailRequester }: IRequestResetPassword): Promise<IUserRequestResetPasswordReturn> {
 		// Validate email
 		await this.userValidations.requestResetPassword(emailRequester);
 
@@ -114,12 +116,12 @@ class UserService implements IUserService {
 		return returnData;
 	}
 
-	public async confirmResetPassword(resetCode: string): Promise<string> {
+	public async confirmResetPassword({ code, password }: IConfirmResetPassword): Promise<string> {
 		// Validate reset code
-		await this.userValidations.confirmResetPassword(resetCode);
+		await this.userValidations.confirmResetPassword({ code, password });
 
 		// Check if reset code exists
-		const resetCodeExists = await this.redisRepository.getResetPasswordCode(resetCode);
+		const resetCodeExists = await this.redisRepository.getResetPasswordCode(code);
 		if (!resetCodeExists) {
 			throw new BadRequestError("Invalid reset code");
 		}

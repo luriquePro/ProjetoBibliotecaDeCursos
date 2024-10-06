@@ -1,6 +1,6 @@
 import * as yup from "yup";
 import { YupValidator } from "../utils/YupValidator.ts";
-import { IUserRegisterDTO, IUserValidation } from "../interfaces/UserInterface.ts";
+import { IConfirmResetPassword, IUserRegisterDTO, IUserValidation } from "../interfaces/UserInterface.ts";
 import { CpfValidator } from "../utils/CpfValidator.ts";
 import moment from "moment";
 
@@ -89,10 +89,28 @@ class UserValidations implements IUserValidation {
 		await YupValidator(shapeValidation, dataValidation);
 	}
 
-	public async confirmResetPassword(resetPasswordCode: string): Promise<void> {
-		const dataValidation = { code: resetPasswordCode };
-		const shapeValidation = { code: yup.string().required("Code is a required field") };
-
+	public async confirmResetPassword({ code, password }: IConfirmResetPassword): Promise<void> {
+		const dataValidation = { code, password };
+		const shapeValidation = {
+			code: yup.string().required("Code is a required field"),
+			password: yup
+				.string()
+				.required("Password is a required field")
+				.min(8, "Password must contain at least 8 characters")
+				.max(16, "The password can only contain up to 16 characters")
+				.test("password-must-contain-at-least-one-letter", "Password must contain at least one letter", value => {
+					const letterRegex = /[A-Za-z]/; // RegEx para pelo menos uma letra
+					return !!value && letterRegex.test(value);
+				})
+				.test("password-must-contain-at-least-one-number", "Password must contain at least one number", value => {
+					const numberRegex = /[0-9]/; // RegEx para pelo menos um número
+					return !!value && numberRegex.test(value);
+				})
+				.test("password-must-contain-at-least-one-special-character", "Password must contain at least one special character", value => {
+					const specialCharacterRegex = /[^A-Za-z0-9]/; // RegEx para pelo menos um caractere especial
+					return !!value && specialCharacterRegex.test(value);
+				}),
+		};
 		await YupValidator(shapeValidation, dataValidation);
 	}
 }
