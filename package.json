@@ -7,9 +7,9 @@
 		"start": "node dist/index.js",
 		"dev": "tsx watch src/index.ts ",
 		"build": "tsx src/index.ts",
-		"test": "NODE_OPTIONS=--experimental-vm-modules npx jest --injectGlobals false --runInBand tests/",
-		"test:dev": "NODE_OPTIONS=--experimental-vm-modules npx jest --injectGlobals false --runInBand --watchAll tests/",
-		"test:debug": "node --experimental-vm-modules --inspect-brk node_modules/.bin/jest --injectGlobals false --runInBand --watchAll tests/",
+		"test": "NODE_OPTIONS=--experimental-vm-modules npx jest --injectGlobals false --runInBand --testPathPattern",
+		"test:dev": "NODE_OPTIONS=--experimental-vm-modules npx jest --injectGlobals false --runInBand --testPathPattern --watchAll",
+		"test:debug": "node --experimental-vm-modules --inspect-brk node_modules/.bin/jest --injectGlobals false --runInBand --testPathPattern --watchAll",
 		"lint": "eslint src/**/*.ts --ignore-path .gitignore --ignore-path .eslintignore .",
 		"lint:fix": "eslint src/**/*.ts --fix --ignore-path .gitignore --ignore-path .eslintignore .",
 		"format": "prettier --check --ignore-path .gitignore --ignore-path .prettierignore .",
@@ -19,9 +19,6 @@
 	"author": "lurique",
 	"license": "ISC",
 	"devDependencies": {
-		"@babel/core": "^7.25.2",
-		"@babel/preset-env": "^7.25.4",
-		"@babel/preset-typescript": "^7.24.7",
 		"@jest/globals": "^29.7.0",
 		"@types/cors": "^2.8.17",
 		"@types/express": "^4.17.21",
@@ -29,7 +26,6 @@
 		"@types/uuid": "^10.0.0",
 		"@typescript-eslint/eslint-plugin": "^8.1.0",
 		"@typescript-eslint/parser": "^8.1.0",
-		"babel-jest": "^29.7.0",
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-import": "^2.29.1",
@@ -56,7 +52,6 @@
 		"uuid": "^10.0.0",
 		"yup": "^1.4.0"
 	},
-	"type": "module",
 	"engines": {
 		"node": "v20.17.0"
 	}
