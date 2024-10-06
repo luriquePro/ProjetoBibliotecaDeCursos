@@ -76,6 +76,13 @@ export interface IConfirmResetPassword {
 	code: string;
 }
 
+export interface IConfirmResetPasswordReturn {
+	is_error: false;
+	message: "Password changed successfully";
+	status_code: 200;
+	logout: true;
+}
+
 // Interface of Class UserValidations
 export interface IUserValidation {
 	registerUser(dataValidation: IUserRegisterDTO): Promise<void>;
@@ -87,7 +94,7 @@ export interface IUserValidation {
 export interface IUserService {
 	registerUser(dataRegistration: IUserRegisterDTO): Promise<IUserRegisterReturn>;
 	requestResetPassword(dataRequestResetPassword: IRequestResetPassword): Promise<IUserRequestResetPasswordReturn>;
-	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<string>;
+	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<IConfirmResetPasswordReturn>;
 }
 
 // Interface of Class UserRepository

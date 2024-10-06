@@ -1,6 +1,7 @@
 import moment from "moment";
 import {
 	IConfirmResetPassword,
+	IConfirmResetPasswordReturn,
 	IRequestResetPassword,
 	IResetPasswordCode,
 	IUserRegisterDTO,
@@ -116,7 +117,7 @@ class UserService implements IUserService {
 		return returnData;
 	}
 
-	public async confirmResetPassword({ code, password }: IConfirmResetPassword): Promise<string> {
+	public async confirmResetPassword({ code, password }: IConfirmResetPassword): Promise<IConfirmResetPasswordReturn> {
 		// Validate reset code
 		await this.userValidations.confirmResetPassword({ code, password });
 
@@ -148,8 +149,15 @@ class UserService implements IUserService {
 		// Update User
 		await this.userRepository.updateUser({ id: userExists.id }, { $set: { password: hashedPassword } });
 
-		// Receber a senha e validar
-		return "";
+		// Data Return to Client
+		const returnData: IConfirmResetPasswordReturn = {
+			is_error: false,
+			message: "Password changed successfully",
+			status_code: 200,
+			logout: true,
+		};
+
+		return returnData;
 	}
 }
 
