@@ -3,16 +3,16 @@
 ## Usuários
 
 - [x] Cadastrar Usuário;
-- [ ] Alterar Senha do Usuário;
 - [x] Resetar Senha do Usuário;
-- [ ] Autenticar o Usuário;
 - [x] Adicionar Cache para o código de Resetar Senha do Usuario;
+- [ ] Autenticar o Usuário;
+- [ ] Alterar Senha do Usuário;
 
 ## Servidor
 
 - [x] Adicionar Middleware para `RateLimit`;
-- [ ] Criar função padrão para retorno de Erros;
-- [ ] Fixar os `StatusCodes` em um Enum;
+- [x] Criar função padrão para retorno de Erros;
+- [x] Fixar os `StatusCodes` em um Enum;
 - [ ] Adicionar Middleware de `Autenticação`;
 - [ ] Adicionar `Swagger`;
 

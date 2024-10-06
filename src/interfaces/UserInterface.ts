@@ -1,5 +1,6 @@
 import mongoose, { FilterQuery, UpdateQuery } from "mongoose";
 import { USER_STATUS } from "../constants/USER.ts";
+import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "./AppInterface.ts";
 
 /* 
 	#Register
@@ -20,9 +21,6 @@ export interface IUserRegisterReturn {
 	id: string;
 	login: string;
 	first_name: string;
-	is_error: false;
-	message: "User registered successfully";
-	status_code: 201;
 }
 
 // interface of Data that save in repository
@@ -65,9 +63,6 @@ export interface IResetPasswordCode {
 }
 
 export interface IUserRequestResetPasswordReturn {
-	is_error: false;
-	message: "Reset code sent successfully";
-	status_code: 200;
 	reset_code: string;
 }
 
@@ -77,9 +72,6 @@ export interface IConfirmResetPassword {
 }
 
 export interface IConfirmResetPasswordReturn {
-	is_error: false;
-	message: "Password changed successfully";
-	status_code: 200;
 	logout: true;
 }
 
@@ -92,9 +84,9 @@ export interface IUserValidation {
 
 // Interface of Class UserService
 export interface IUserService {
-	registerUser(dataRegistration: IUserRegisterDTO): Promise<IUserRegisterReturn>;
-	requestResetPassword(dataRequestResetPassword: IRequestResetPassword): Promise<IUserRequestResetPasswordReturn>;
-	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<IConfirmResetPasswordReturn>;
+	registerUser(dataRegistration: IUserRegisterDTO): Promise<IDefaultReturnsCreated<IUserRegisterReturn>>;
+	requestResetPassword(dataRequestResetPassword: IRequestResetPassword): Promise<IDefaultReturnsSuccess<IUserRequestResetPasswordReturn>>;
+	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<IDefaultReturnsSuccess<IConfirmResetPasswordReturn>>;
 }
 
 // Interface of Class UserRepository

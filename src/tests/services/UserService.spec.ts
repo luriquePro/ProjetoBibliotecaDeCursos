@@ -86,9 +86,6 @@ describe("#UserService Suite", () => {
 				id: "aaa",
 				login: userMocked.login,
 				first_name: firstName,
-				is_error: false,
-				message: "User registered successfully",
-				status_code: 201,
 			};
 
 			jest.spyOn(userRepository, userRepository.findUserByCPF.name as any).mockReturnValue(undefined);
@@ -103,7 +100,7 @@ describe("#UserService Suite", () => {
 			const result = await userService.registerUser(userMocked);
 
 			// Assert
-			expect(result).toEqual(expected);
+			expect(result).toEqual({ is_error: false, message: "User registered successfully", status_code: 201, body: expected });
 		});
 	});
 

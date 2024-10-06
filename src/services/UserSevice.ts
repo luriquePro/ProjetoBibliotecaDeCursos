@@ -17,6 +17,8 @@ import { HashPassword } from "../utils/HashPassword.ts";
 import { IdGenerate } from "../utils/IdGenerate.ts";
 import { USER_STATUS } from "../constants/USER.ts";
 import { IRedisRepository } from "../interfaces/RedisRepository.ts";
+import { DefaultReturns } from "../shared/DefaultReturns.ts";
+import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "../interfaces/AppInterface.ts";
 
 class UserService implements IUserService {
 	constructor(
@@ -25,7 +27,14 @@ class UserService implements IUserService {
 		private readonly redisRepository: IRedisRepository,
 	) {}
 
-	public async registerUser({ full_name, email, password, cpf, birth_date, login }: IUserRegisterDTO): Promise<IUserRegisterReturn> {
+	public async registerUser({
+		full_name,
+		email,
+		password,
+		cpf,
+		birth_date,
+		login,
+	}: IUserRegisterDTO): Promise<IDefaultReturnsCreated<IUserRegisterReturn>> {
 		const dataValidation = { full_name, email, password, cpf, birth_date, login };
 		await this.userValidations.registerUser(dataValidation);
 
@@ -74,15 +83,14 @@ class UserService implements IUserService {
 			id: result.id,
 			login: result.login,
 			first_name: result.first_name,
-			is_error: false,
-			message: "User registered successfully",
-			status_code: 201,
 		};
 
-		return returnData;
+		return DefaultReturns.created<IUserRegisterReturn>({ message: "User registered successfully", body: returnData });
 	}
 
-	public async requestResetPassword({ email: emailRequester }: IRequestResetPassword): Promise<IUserRequestResetPasswordReturn> {
+	public async requestResetPassword({
+		email: emailRequester,
+	}: IRequestResetPassword): Promise<IDefaultReturnsSuccess<IUserRequestResetPasswordReturn>> {
 		// Validate email
 		await this.userValidations.requestResetPassword(emailRequester);
 
@@ -118,17 +126,12 @@ class UserService implements IUserService {
 		await this.redisRepository.saveResetPasswordCode(resetCode, 5 * 60);
 
 		// Data Return to Client
-		const returnData: IUserRequestResetPasswordReturn = {
-			is_error: false,
-			message: "Reset code sent successfully",
-			status_code: 200,
-			reset_code: resetCode.code,
-		};
+		const returnData: IUserRequestResetPasswordReturn = { reset_code: resetCode.code };
 
-		return returnData;
+		return DefaultReturns.success<IUserRequestResetPasswordReturn>({ message: "Reset code sent successfully", body: returnData });
 	}
 
-	public async confirmResetPassword({ code, password }: IConfirmResetPassword): Promise<IConfirmResetPasswordReturn> {
+	public async confirmResetPassword({ code, password }: IConfirmResetPassword): Promise<IDefaultReturnsSuccess<IConfirmResetPasswordReturn>> {
 		// Validate reset code
 		await this.userValidations.confirmResetPassword({ code, password });
 
@@ -161,14 +164,9 @@ class UserService implements IUserService {
 		await this.userRepository.updateUser({ id: userExists.id }, { $set: { password: hashedPassword } });
 
 		// Data Return to Client
-		const returnData: IConfirmResetPasswordReturn = {
-			is_error: false,
-			message: "Password changed successfully",
-			status_code: 200,
-			logout: true,
-		};
+		const returnData: IConfirmResetPasswordReturn = { logout: true };
 
-		return returnData;
+		return DefaultReturns.success<IConfirmResetPasswordReturn>({ message: "Password changed successfully", body: returnData });
 	}
 }
 
