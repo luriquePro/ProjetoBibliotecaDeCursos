@@ -18,7 +18,7 @@
 
 - [ ] Usuários ✅
   - [x] Cadastrar Usuário ✅
-  - [ ] Resetar Senha ⚠️
+  - [-] Resetar Senha ⚠️
   - [ ] Autenticar ❌
 
 ## 📒 Estrutura
@@ -576,7 +576,7 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 $ git clone <https://github.com/luriquePro/projeto-ada>
 
 # Acesse a pasta do projeto no terminal/cmd
-$ cd projeto-ada
+$ cd projetoBibliotecaDeCursos
 
 # Instale as dependências
 $ npm install
