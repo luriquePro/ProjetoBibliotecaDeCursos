@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { STATUS_CODES } from "../interfaces/AppInterface.ts";
 import { IConfirmResetPassword, IRequestResetPassword, IUserRegisterDTO, IUserService } from "../interfaces/UserInterface.ts";
 
 class UserController {
@@ -15,7 +16,7 @@ class UserController {
 		};
 
 		const result = await this.userService.registerUser(dataRegistration);
-		return response.json(result);
+		return response.status(STATUS_CODES.CREATED).json(result);
 	}
 
 	public async requestResetPassword(request: Request, response: Response): Promise<Response> {

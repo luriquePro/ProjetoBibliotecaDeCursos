@@ -22,8 +22,7 @@ export default {
 	},
 	rules: {
 		"no-var": "error",
-		"no-console": "warn",
-		indent: ["error", "tab"],
+		indent: ["error", "tab", { SwitchCase: 1 }],
 		quotes: ["error", "double"],
 		semi: ["error", "always"],
 		"import/order": [
@@ -57,12 +56,4 @@ export default {
 		],
 		"prettier/prettier": "error",
 	},
-	overrides: [
-		{
-			files: ["tests/**/*"],
-			env: {
-				jest: true,
-			},
-		},
-	],
 };

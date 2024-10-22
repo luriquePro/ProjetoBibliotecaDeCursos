@@ -12,3 +12,15 @@
 ## Logger
 
 - _Efetuar Logger com `Elastic Search` e `Kibana`_
+
+## Usuario
+
+- _Adicionar Dados de Relatorios no usuario_
+  - Total de Vezes Logado
+  - Ultimo Acesso
+  - Primeiro Acesso
+  - Total Cursos Comprados
+  - Total Cursos Lançados
+  - Total Cursos Finalizados
+
+## Enviar Notificação pelo Firebase
