@@ -88,7 +88,7 @@
   - Criar Model e Repository do Usuario
   - Criar Route e Controller
 
-- [ ] | #02 | Resetar a senha de um Usuario
+- [x] | #02 | Resetar a senha de um Usuario
   - Criar validação para o requisitar o código de Alterar senha
   - Gerar o código de reset da senha
   - Receber o código e validar se ele está valido e existe

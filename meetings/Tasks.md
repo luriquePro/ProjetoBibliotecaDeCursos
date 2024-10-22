@@ -13,8 +13,8 @@
 - [x] Adicionar Middleware para `RateLimit`;
 - [x] Criar função padrão para retorno de Erros;
 - [x] Fixar os `StatusCodes` em um Enum;
-- [ ] Adicionar Middleware de `Autenticação`;
 - [ ] Adicionar `Swagger`;
+- [ ] Adicionar Middleware de `Autenticação`;
 
 ## Fluxos
 
@@ -37,7 +37,7 @@
   - Transformar **Birth date** Para `Date`
 - Deve-se retornar
   - id
-  - login
+  - loginx
   - First name
   - is_error `false`
   - message `User registered successfully`
