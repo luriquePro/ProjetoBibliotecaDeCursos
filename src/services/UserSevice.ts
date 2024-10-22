@@ -1,4 +1,7 @@
 import moment from "moment";
+import { USER_STATUS } from "../constants/USER.ts";
+import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "../interfaces/AppInterface.ts";
+import { IRedisRepository } from "../interfaces/RedisRepository.ts";
 import {
 	IConfirmResetPassword,
 	IConfirmResetPasswordReturn,
@@ -12,19 +15,18 @@ import {
 	IUserService,
 	IUserValidation,
 } from "../interfaces/UserInterface.ts";
+import { DefaultReturns } from "../shared/DefaultReturns.ts";
 import { BadRequestError } from "../shared/errors/AppError.ts";
+import { Logger } from "../shared/Logger.ts";
 import { HashPassword } from "../utils/HashPassword.ts";
 import { IdGenerate } from "../utils/IdGenerate.ts";
-import { USER_STATUS } from "../constants/USER.ts";
-import { IRedisRepository } from "../interfaces/RedisRepository.ts";
-import { DefaultReturns } from "../shared/DefaultReturns.ts";
-import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "../interfaces/AppInterface.ts";
 
 class UserService implements IUserService {
 	constructor(
 		private readonly userValidations: IUserValidation,
 		private readonly userRepository: IUserRepository,
 		private readonly redisRepository: IRedisRepository,
+		private readonly logger = new Logger("user"),
 	) {}
 
 	public async registerUser({
@@ -84,6 +86,14 @@ class UserService implements IUserService {
 			login: result.login,
 			first_name: result.first_name,
 		};
+
+		await this.logger.info<IUserRegisterReturn>({
+			entityId: returnData.id,
+			title: "User registered successfully",
+			description: `User ${result.login} registered successfully`,
+			statusCode: 201,
+			objectData: returnData,
+		});
 
 		return DefaultReturns.created<IUserRegisterReturn>({ message: "User registered successfully", body: returnData });
 	}

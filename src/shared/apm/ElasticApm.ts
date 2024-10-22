@@ -11,6 +11,10 @@ class ApmService {
 			captureBody: "all",
 		});
 	}
+
+	public elasticLogger(): ElasticApmNode.Logger {
+		return ElasticApmNode.logger;
+	}
 }
 
 export { ApmService };
