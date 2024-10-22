@@ -4,7 +4,7 @@ import express from "express";
 import mongoose from "mongoose";
 import { ObservabilityApm } from "./middlewares/ObservabilityMiddleware.ts";
 import { routes } from "./routes.ts";
-import { ApmService } from "./shared/logger/ElasticApm.ts";
+import { ApmService } from "./shared/apm/ElasticApm.ts";
 
 new ApmService().startElastic();
 
@@ -33,8 +33,7 @@ const URL = process.env.MONGODB_URI!;
 mongoose
 	.connect(URL, { dbName: process.env.MONGODB_DATABASE })
 	.then(() => console.log(`MongoDB connected!`))
+	.then(() => app.use(routes))
 	.catch(err => console.log("Error to connect mongoDB"));
-
-app.use(routes);
 
 export { app };

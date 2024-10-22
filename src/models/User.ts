@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Document, Schema, model } from "mongoose";
 import { IUserDTO } from "../interfaces/UserInterface.ts";
 
 export interface IUserMongo extends Partial<Omit<Document, "id">>, IUserDTO {}

@@ -1,6 +1,6 @@
-import { Schema, model, Document } from "mongoose";
-import { IIndexDTO } from "../interfaces/IndexInterface.ts";
+import { Document, Schema, model } from "mongoose";
 import { v4 } from "uuid";
+import { IIndexDTO } from "../interfaces/IndexInterface.ts";
 
 export interface IIndexMongo extends Partial<Omit<Document, "id">>, IIndexDTO {}
 

@@ -1,4 +1,7 @@
-import { describe, test, jest, afterEach, beforeEach, expect } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, jest, test } from "@jest/globals";
+import moment from "moment";
+import { USER_STATUS } from "../../constants/USER.ts";
+import { IRedisRepository } from "../../interfaces/RedisRepository.ts";
 import {
 	IConfirmResetPassword,
 	IUserRegisterDTO,
@@ -7,15 +10,12 @@ import {
 	IUserService,
 	IUserValidation,
 } from "../../interfaces/UserInterface.ts";
+import { client } from "../../models/Redis.ts";
+import { UserModel } from "../../models/User.ts";
+import { RedisRepository } from "../../repositories/RedisRepository.ts";
+import { UserRepository } from "../../repositories/UserRepository.ts";
 import { UserService } from "../../services/UserSevice.ts";
 import { UserValidations } from "../../validations/UserValidations.ts";
-import { UserRepository } from "../../repositories/UserRepository.ts";
-import { UserModel } from "../../models/User.ts";
-import { IRedisRepository } from "../../interfaces/RedisRepository.ts";
-import { RedisRepository } from "../../repositories/RedisRepository.ts";
-import { client } from "../../models/Redis.ts";
-import moment from "moment";
-import { USER_STATUS } from "../../constants/USER.ts";
 
 describe("#UserService Suite", () => {
 	let userService: IUserService;
