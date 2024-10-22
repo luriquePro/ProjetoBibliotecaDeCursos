@@ -1,8 +1,8 @@
+import moment from "moment";
 import * as yup from "yup";
-import { YupValidator } from "../utils/YupValidator.ts";
 import { IConfirmResetPassword, IUserRegisterDTO, IUserValidation } from "../interfaces/UserInterface.ts";
 import { CpfValidator } from "../utils/CpfValidator.ts";
-import moment from "moment";
+import { YupValidator } from "../utils/YupValidator.ts";
 
 class UserValidations implements IUserValidation {
 	public async registerUser({ full_name, email, password, cpf, birth_date, login }: IUserRegisterDTO) {
@@ -79,14 +79,14 @@ class UserValidations implements IUserValidation {
 				}),
 		};
 
-		await YupValidator(shapeValidation, dataValidation);
+		await YupValidator(shapeValidation, dataValidation, "user");
 	}
 
 	public async requestResetPassword(emailRequester: string): Promise<void> {
 		const dataValidation = { email: emailRequester };
 		const shapeValidation = { email: yup.string().required("Email is a required field").email("Enter a valid email") };
 
-		await YupValidator(shapeValidation, dataValidation);
+		await YupValidator(shapeValidation, dataValidation, "user");
 	}
 
 	public async confirmResetPassword({ code, password }: IConfirmResetPassword): Promise<void> {
@@ -111,7 +111,7 @@ class UserValidations implements IUserValidation {
 					return !!value && specialCharacterRegex.test(value);
 				}),
 		};
-		await YupValidator(shapeValidation, dataValidation);
+		await YupValidator(shapeValidation, dataValidation, "user");
 	}
 }
 

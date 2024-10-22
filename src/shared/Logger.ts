@@ -33,7 +33,7 @@ export class Logger {
 		this.logger[level](logData.description, logData);
 
 		await elasticClient.create({
-			id: logData.entity_id,
+			id: logData.trace_id,
 			index: logData.entity,
 			body: logData,
 		});
