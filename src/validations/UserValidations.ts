@@ -1,6 +1,6 @@
 import moment from "moment";
 import * as yup from "yup";
-import { IConfirmResetPassword, IUserRegisterDTO, IUserValidation } from "../interfaces/UserInterface.ts";
+import { IAuthenticate, IConfirmResetPassword, IUserRegisterDTO, IUserValidation } from "../interfaces/UserInterface.ts";
 import { CpfValidator } from "../utils/CpfValidator.ts";
 import { YupValidator } from "../utils/YupValidator.ts";
 
@@ -111,6 +111,33 @@ class UserValidations implements IUserValidation {
 					return !!value && specialCharacterRegex.test(value);
 				}),
 		};
+		await YupValidator(shapeValidation, dataValidation, "user");
+	}
+
+	public async authenticate({ login, password }: IAuthenticate): Promise<void> {
+		const dataValidation = { login, password };
+
+		const shapeValidation = {
+			login: yup.string().required("Login is a required field").min(6, "Login must contain at least 6 characters"),
+			password: yup
+				.string()
+				.required("Password is a required field")
+				.min(8, "Password must contain at least 8 characters")
+				.max(16, "The password can only contain up to 16 characters")
+				.test("password-must-contain-at-least-one-letter", "Password must contain at least one letter", value => {
+					const letterRegex = /[A-Za-z]/;
+					return !!value && letterRegex.test(value);
+				})
+				.test("password-must-contain-at-least-one-number", "Password must contain at least one number", value => {
+					const numberRegex = /[0-9]/;
+					return !!value && numberRegex.test(value);
+				})
+				.test("password-must-contain-at-least-one-special-character", "Password must contain at least one special character", value => {
+					const specialCharacterRegex = /[^A-Za-z0-9]/;
+					return !!value && specialCharacterRegex.test(value);
+				}),
+		};
+
 		await YupValidator(shapeValidation, dataValidation, "user");
 	}
 }

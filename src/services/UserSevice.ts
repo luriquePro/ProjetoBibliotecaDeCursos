@@ -3,6 +3,8 @@ import { USER_STATUS } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "../interfaces/AppInterface.ts";
 import { IRedisRepository } from "../interfaces/RedisRepository.ts";
 import {
+	IAuthenticate,
+	IAuthenticateReturn,
 	IConfirmResetPassword,
 	IConfirmResetPasswordReturn,
 	IRequestResetPassword,
@@ -16,7 +18,7 @@ import {
 	IUserValidation,
 } from "../interfaces/UserInterface.ts";
 import { DefaultReturns } from "../shared/DefaultReturns.ts";
-import { BadRequestError } from "../shared/errors/AppError.ts";
+import { BadRequestError, NotFoundError } from "../shared/errors/AppError.ts";
 import { Logger } from "../shared/Logger.ts";
 import { HashPassword } from "../utils/HashPassword.ts";
 import { IdGenerate } from "../utils/IdGenerate.ts";
@@ -263,6 +265,42 @@ class UserService implements IUserService {
 		});
 
 		return DefaultReturns.success<IConfirmResetPasswordReturn>({ message: "Password changed successfully", body: returnData });
+	}
+
+	public async authenticate({ login, password }: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>> {
+		await this.userValidations.authenticate({ login, password });
+
+		const userWithThisLogin = await this.userRepository.findOneByObj({ $or: [{ login }, { email: login }, { cpf: login }] });
+		if (!userWithThisLogin) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "User with this login does not Exists",
+				description: "Send a new request to authenticate with an invalid login",
+				objectData: { login },
+			});
+
+			throw new NotFoundError("User does not Exists, check your login or register a new user");
+		}
+
+		const hashPassword = HashPassword(password);
+
+		// Check this way to avoid having contact with the user's hashed password.
+		// In the future, the password will already be hashed from the frontend.
+		const userWithThisLoginAndPassword = await this.userRepository.findOneByObj({ id: userWithThisLogin.id, password: hashPassword });
+		if (!userWithThisLoginAndPassword) {
+			await this.logger.error({
+				entityId: userWithThisLogin.id,
+				statusCode: 400,
+				title: "Invalid password",
+				description: "Send a new request to authenticate with an invalid password",
+				objectData: { login, password },
+			});
+
+			throw new BadRequestError("Invalid password");
+		}
+
+		return userWithThisLogin;
 	}
 }
 

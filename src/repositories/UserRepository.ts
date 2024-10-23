@@ -9,7 +9,7 @@ class UserRepository implements IUserRepository {
 
 	@captureOperation("findOne", "Users")
 	public async findOneByObj(filter: FilterQuery<IUserDTO>): Promise<IUserDTO | null> {
-		const result = await this.userModel.findOne(filter);
+		const result = await this.userModel.findOne(filter).lean();
 		return result;
 	}
 

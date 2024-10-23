@@ -18,4 +18,10 @@ const UserSchema = new Schema<IUserMongo>(
 	{ timestamps: true },
 );
 
+UserSchema.post(["findOne", "findOneAndUpdate"], function (doc) {
+	if (doc) {
+		doc.password = undefined;
+	}
+});
+
 export const UserModel = model<IUserMongo>("users", UserSchema);

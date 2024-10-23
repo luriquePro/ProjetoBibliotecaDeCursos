@@ -31,7 +31,7 @@ UserRoutes.post(
 	userController.confirmResetPassword.bind(userController),
 );
 
-// UserRoutes.post("/login", RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }), userController.login.bind(userController));
+UserRoutes.post("/authenticate", RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }), userController.authenticate.bind(userController));
 
 // UserRoutes.post(
 // 	"/change-password",

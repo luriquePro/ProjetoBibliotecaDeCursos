@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { STATUS_CODES } from "../interfaces/AppInterface.ts";
-import { IConfirmResetPassword, IRequestResetPassword, IUserRegisterDTO, IUserService } from "../interfaces/UserInterface.ts";
+import { IAuthenticate, IConfirmResetPassword, IRequestResetPassword, IUserRegisterDTO, IUserService } from "../interfaces/UserInterface.ts";
 
 class UserController {
 	constructor(private readonly userService: IUserService) {}
@@ -28,6 +28,12 @@ class UserController {
 	public async confirmResetPassword(request: Request, response: Response): Promise<Response> {
 		const dataConfirmResetPassword: IConfirmResetPassword = { code: request.body.reset_password_code, password: request.body.new_password };
 		const result = await this.userService.confirmResetPassword(dataConfirmResetPassword);
+		return response.json(result);
+	}
+
+	public async authenticate(request: Request, response: Response): Promise<Response> {
+		const dataAuthenticate: IAuthenticate = { login: request.body.login, password: request.body.password };
+		const result = await this.userService.authenticate(dataAuthenticate);
 		return response.json(result);
 	}
 }

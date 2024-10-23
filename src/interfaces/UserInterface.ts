@@ -75,11 +75,19 @@ export interface IConfirmResetPasswordReturn {
 	logout: true;
 }
 
+export interface IAuthenticate {
+	login: string;
+	password: string;
+}
+
+export interface IAuthenticateReturn {}
+
 // Interface of Class UserValidations
 export interface IUserValidation {
 	registerUser(dataValidation: IUserRegisterDTO): Promise<void>;
 	requestResetPassword(emailRequester: string): Promise<void>;
 	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<void>;
+	authenticate(dataAuthenticate: IAuthenticate): Promise<void>;
 }
 
 // Interface of Class UserService
@@ -87,6 +95,7 @@ export interface IUserService {
 	registerUser(dataRegistration: IUserRegisterDTO): Promise<IDefaultReturnsCreated<IUserRegisterReturn>>;
 	requestResetPassword(dataRequestResetPassword: IRequestResetPassword): Promise<IDefaultReturnsSuccess<IUserRequestResetPasswordReturn>>;
 	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<IDefaultReturnsSuccess<IConfirmResetPasswordReturn>>;
+	authenticate(dataAuthenticate: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>>;
 }
 
 // Interface of Class UserRepository
