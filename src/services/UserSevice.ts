@@ -2,6 +2,7 @@ import moment from "moment";
 import { USER_STATUS } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "../interfaces/AppInterface.ts";
 import { IRedisRepository } from "../interfaces/RedisRepository.ts";
+import { ISessionService } from "../interfaces/SessionInterface.ts";
 import {
 	IAuthenticate,
 	IAuthenticateReturn,
@@ -20,6 +21,7 @@ import {
 import { DefaultReturns } from "../shared/DefaultReturns.ts";
 import { BadRequestError, NotFoundError } from "../shared/errors/AppError.ts";
 import { Logger } from "../shared/Logger.ts";
+import { GenerateToken } from "../utils/GenerateToken.ts";
 import { HashPassword } from "../utils/HashPassword.ts";
 import { IdGenerate } from "../utils/IdGenerate.ts";
 
@@ -28,6 +30,7 @@ class UserService implements IUserService {
 		private readonly userValidations: IUserValidation,
 		private readonly userRepository: IUserRepository,
 		private readonly redisRepository: IRedisRepository,
+		private readonly sessionService: ISessionService,
 		private readonly logger = new Logger("user"),
 	) {}
 
@@ -118,7 +121,7 @@ class UserService implements IUserService {
 			objectData: returnData,
 		});
 
-		return DefaultReturns.created<IUserRegisterReturn>({ message: "User registered successfully", body: returnData });
+		return DefaultReturns.created({ message: "User registered successfully", body: returnData });
 	}
 
 	public async requestResetPassword({
@@ -190,7 +193,7 @@ class UserService implements IUserService {
 			objectData: returnData,
 		});
 
-		return DefaultReturns.success<IUserRequestResetPasswordReturn>({ message: "Reset code sent successfully", body: returnData });
+		return DefaultReturns.success({ message: "Reset code sent successfully", body: returnData });
 	}
 
 	public async confirmResetPassword({ code, password }: IConfirmResetPassword): Promise<IDefaultReturnsSuccess<IConfirmResetPasswordReturn>> {
@@ -264,7 +267,7 @@ class UserService implements IUserService {
 			objectData: returnData,
 		});
 
-		return DefaultReturns.success<IConfirmResetPasswordReturn>({ message: "Password changed successfully", body: returnData });
+		return DefaultReturns.success({ message: "Password changed successfully", body: returnData });
 	}
 
 	public async authenticate({ login, password }: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>> {
@@ -283,11 +286,11 @@ class UserService implements IUserService {
 			throw new NotFoundError("User does not Exists, check your login or register a new user");
 		}
 
-		const hashPassword = HashPassword(password);
+		const hashedPassword = HashPassword(password);
 
 		// Check this way to avoid having contact with the user's hashed password.
 		// In the future, the password will already be hashed from the frontend.
-		const userWithThisLoginAndPassword = await this.userRepository.findOneByObj({ id: userWithThisLogin.id, password: hashPassword });
+		const userWithThisLoginAndPassword = await this.userRepository.findOneByObj({ id: userWithThisLogin.id, password: hashedPassword });
 		if (!userWithThisLoginAndPassword) {
 			await this.logger.error({
 				entityId: userWithThisLogin.id,
@@ -300,7 +303,35 @@ class UserService implements IUserService {
 			throw new BadRequestError("Invalid password");
 		}
 
-		return userWithThisLogin;
+		const hasSessionOpened = await this.sessionService.getUserOpenSession(userWithThisLoginAndPassword.id);
+		if (hasSessionOpened) {
+			const returnData = GenerateToken(userWithThisLoginAndPassword, hasSessionOpened);
+
+			await this.logger.info({
+				entityId: userWithThisLoginAndPassword.id,
+				title: "Login successfully with session open",
+				description: `Login successfully to ${userWithThisLoginAndPassword.login}`,
+				statusCode: 200,
+				objectData: returnData,
+			});
+
+			return DefaultReturns.success({ message: "Login successfully", body: returnData });
+		}
+
+		await this.sessionService.inactivateAllUserSessions(userWithThisLoginAndPassword.id);
+
+		const newSession = await this.sessionService.createUserSession(userWithThisLoginAndPassword.id);
+		const returnData = GenerateToken(userWithThisLoginAndPassword, newSession);
+
+		await this.logger.info({
+			entityId: userWithThisLoginAndPassword.id,
+			title: "Login successfully with new session",
+			description: `Login successfully to ${userWithThisLoginAndPassword.login}`,
+			statusCode: 200,
+			objectData: returnData,
+		});
+
+		return DefaultReturns.success({ message: "Login successfully", body: returnData });
 	}
 }
 

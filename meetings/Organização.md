@@ -17,3 +17,9 @@
 ## Enviar Notificação pelo Firebase
 
 ## Adicionar Transaction no projeto inteiro
+
+## Adicionar Testes
+
+- Rota de Authenticate
+- Service de Session
+- Generate Token

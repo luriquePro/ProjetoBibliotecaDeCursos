@@ -1,0 +1,1 @@
+export const SESSION_DURATION_TIME_IN_MINUTES = 24 * 60;

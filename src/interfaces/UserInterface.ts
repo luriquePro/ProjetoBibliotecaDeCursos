@@ -80,7 +80,22 @@ export interface IAuthenticate {
 	password: string;
 }
 
-export interface IAuthenticateReturn {}
+export interface IGenerateTokenReturn {
+	token: string;
+	name: string;
+	email: string;
+	id: string;
+	start_session: Date;
+	end_session: Date;
+}
+
+export interface ITokenCreateDTO {
+	sessionId: string;
+	userId: string;
+	login: string;
+}
+
+export interface IAuthenticateReturn extends IGenerateTokenReturn {}
 
 // Interface of Class UserValidations
 export interface IUserValidation {
