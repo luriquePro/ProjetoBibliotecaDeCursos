@@ -1,7 +1,9 @@
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
+import "express-async-errors";
 import mongoose from "mongoose";
+import { ErrorMiddleware } from "./middlewares/ErrorMiddleware.ts";
 import { ObservabilityApm } from "./middlewares/ObservabilityMiddleware.ts";
 import { routes } from "./routes.ts";
 import { ApmService } from "./shared/apm/ElasticApm.ts";
@@ -33,7 +35,10 @@ const URL = process.env.MONGODB_URI!;
 mongoose
 	.connect(URL, { dbName: process.env.MONGODB_DATABASE })
 	.then(() => console.log(`MongoDB connected!`))
-	.then(() => app.use(routes))
+	.then(() => {
+		app.use(routes);
+		app.use(ErrorMiddleware);
+	})
 	.catch(err => console.log("Error to connect mongoDB"));
 
 export { app };
