@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { client } from "../models/Redis.ts";
 import moment from "moment";
 import { IRateLimit, IRequestCounter } from "../interfaces/AppInterface.ts";
+import { client } from "../models/Redis.ts";
 import { RedisRepository } from "../repositories/RedisRepository.ts";
 
 const redisRepository = new RedisRepository(client);
@@ -10,11 +10,11 @@ export const RateLimit =
 	({ timeLimitInSeconds = 30, limitRequestPerTime = 10, messageInError }: IRateLimit = {}) =>
 	async (request: Request, response: Response, next: NextFunction) => {
 		// get User Data
-		const userIp = request.headers["x-forwarded-for"] || request.socket.remoteAddress;
+		const userKey = request.is_authenticated ? request.user?.id : request.headers["x-forwarded-for"] || request.socket.remoteAddress;
 		const { path } = request.route;
 
 		// Counter Requests Key
-		const key = `rate-limit-${path}-${userIp}`;
+		const key = `rate-limit-${path}-${userKey}`;
 
 		// Get Request Counter
 		const requestCounterJson = await redisRepository.getRequestCounter(key);

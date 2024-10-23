@@ -4,6 +4,7 @@ declare global {
 	namespace Express {
 		export interface Request {
 			user: Partial<IUserDTO>;
+			is_authenticated: boolean | undefined;
 		}
 	}
 }
