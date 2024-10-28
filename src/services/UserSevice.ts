@@ -13,6 +13,7 @@ import {
 	IUserRegisterDTO,
 	IUserRegisterRepository,
 	IUserRegisterReturn,
+	IUserReport,
 	IUserRepository,
 	IUserRequestResetPasswordReturn,
 	IUserService,
@@ -303,6 +304,12 @@ class UserService implements IUserService {
 			throw new BadRequestError("Invalid password");
 		}
 
+		const reportUpdate: Partial<IUserReport> = {
+			...userWithThisLoginAndPassword.report,
+			last_access: moment().utc().toDate(),
+			total_logins: userWithThisLoginAndPassword.report!.total_logins + 1,
+		};
+
 		const hasSessionOpened = await this.sessionService.getUserOpenSession(userWithThisLoginAndPassword.id);
 		if (hasSessionOpened) {
 			const returnData = GenerateToken(userWithThisLoginAndPassword, hasSessionOpened);
@@ -315,6 +322,7 @@ class UserService implements IUserService {
 				objectData: returnData,
 			});
 
+			await this.userRepository.updateUser({ id: userWithThisLoginAndPassword.id }, { $set: { report: reportUpdate } });
 			return DefaultReturns.success({ message: "Login successfully", body: returnData });
 		}
 
@@ -331,6 +339,11 @@ class UserService implements IUserService {
 			objectData: returnData,
 		});
 
+		if (!userWithThisLoginAndPassword.report!.first_access) {
+			reportUpdate.first_access = moment().utc().toDate();
+		}
+
+		await this.userRepository.updateUser({ id: userWithThisLoginAndPassword.id }, { $set: { report: reportUpdate } });
 		return DefaultReturns.success({ message: "Login successfully", body: returnData });
 	}
 }

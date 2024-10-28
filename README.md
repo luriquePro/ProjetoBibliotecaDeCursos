@@ -573,7 +573,7 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 
 ```bash
 # Clone este repositório
-$ git clone <https://github.com/luriquePro/projeto-ada>
+$ git clone <https://github.com/luriquePro/ProjetoBibliotecaDeCursos>
 
 # Acesse a pasta do projeto no terminal/cmd
 $ cd projetoBibliotecaDeCursos
@@ -589,6 +589,9 @@ $ cp .env.example .env
 
 # Ajustar a versão do nodejs
 $ nvm i
+
+# Rodar docker compose
+$ docker-compose up -d
 
 # Execute os testes
 $ npm run test
@@ -618,6 +621,8 @@ $ npm run start
 - [Prettier 3.3](https://prettier.io/)
 - [NTL 5.1](https://github.com/ruyadorno/ntl)
 - [Jest 29.7](https://jestjs.io/pt-BR/)
+- [Elastic Search 8.15](https://www.elastic.co/guide/en/elasticsearch/reference/current/release-highlights.html)
+- [Elastic APM node 4.8](https://www.elastic.co/guide/en/apm/agent/nodejs/current/index.html)
 
 ## Próximas features Planejadas
 

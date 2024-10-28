@@ -14,6 +14,14 @@ const UserSchema = new Schema<IUserMongo>(
 		password: { type: String, required: true, trim: true, index: true },
 		birth_date: { type: Date, required: true, index: true },
 		status: { type: String, required: true, trim: true, index: true },
+		report: {
+			total_logins: { type: Number, default: 0, required: true, index: true },
+			last_access: { type: Date, index: true },
+			first_access: { type: Date, index: true },
+			total_courses_purchased: { type: Number, default: 0, required: true, index: true },
+			total_courses_launched: { type: Number, default: 0, required: true, index: true },
+			total_courses_completed: { type: Number, default: 0, required: true, index: true },
+		},
 	},
 	{ timestamps: true },
 );

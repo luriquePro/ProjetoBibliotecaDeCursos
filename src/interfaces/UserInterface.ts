@@ -35,6 +35,16 @@ export interface IUserDTO {
 	birth_date: Date;
 	login: string;
 	status: USER_STATUS;
+	report?: IUserReport;
+}
+
+export interface IUserReport {
+	total_logins: number;
+	last_access: Date;
+	first_access: Date;
+	total_courses_purchased: number;
+	total_courses_launched: number;
+	total_courses_completed: number;
 }
 
 export interface IUserRegisterRepository extends IUserDTO {}
