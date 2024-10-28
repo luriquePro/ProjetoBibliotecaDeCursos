@@ -13,6 +13,7 @@ new ApmService().startElastic();
 const app = express();
 
 const IS_PRODUCTION = process.env.NODE_ENV === "PROD";
+const FORMAT_SHOW_ERRORS = process.env.FORMAT_SHOW_ERRORS === "true";
 const IPS = process.env.IPS;
 
 const whitelist = IPS?.split(",")! ?? ["http://localhost:3333"];
@@ -37,7 +38,7 @@ mongoose
 	.then(() => console.log(`MongoDB connected!`))
 	.then(() => {
 		app.use(routes);
-		app.use(ErrorMiddleware);
+		if (FORMAT_SHOW_ERRORS) app.use(ErrorMiddleware);
 	})
 	.catch(err => console.log("Error to connect mongoDB"));
 

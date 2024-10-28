@@ -313,17 +313,18 @@ class UserService implements IUserService {
 		const hasSessionOpened = await this.sessionService.getUserOpenSession(userWithThisLoginAndPassword.id);
 		if (hasSessionOpened) {
 			const returnData = GenerateToken(userWithThisLoginAndPassword, hasSessionOpened);
+			if (returnData.token === userWithThisLogin.current_token) {
+				await this.logger.info({
+					entityId: userWithThisLoginAndPassword.id,
+					title: "Login successfully with session open",
+					description: `Login successfully to ${userWithThisLoginAndPassword.login}`,
+					statusCode: 200,
+					objectData: returnData,
+				});
 
-			await this.logger.info({
-				entityId: userWithThisLoginAndPassword.id,
-				title: "Login successfully with session open",
-				description: `Login successfully to ${userWithThisLoginAndPassword.login}`,
-				statusCode: 200,
-				objectData: returnData,
-			});
-
-			await this.userRepository.updateUser({ id: userWithThisLoginAndPassword.id }, { $set: { report: reportUpdate } });
-			return DefaultReturns.success({ message: "Login successfully", body: returnData });
+				await this.userRepository.updateUser({ id: userWithThisLoginAndPassword.id }, { $set: { report: reportUpdate } });
+				return DefaultReturns.success({ message: "Login successfully", body: returnData });
+			}
 		}
 
 		await this.sessionService.inactivateAllUserSessions(userWithThisLoginAndPassword.id);
@@ -343,7 +344,10 @@ class UserService implements IUserService {
 			reportUpdate.first_access = moment().utc().toDate();
 		}
 
-		await this.userRepository.updateUser({ id: userWithThisLoginAndPassword.id }, { $set: { report: reportUpdate } });
+		await this.userRepository.updateUser(
+			{ id: userWithThisLoginAndPassword.id },
+			{ $set: { report: reportUpdate, current_token: returnData.token } },
+		);
 		return DefaultReturns.success({ message: "Login successfully", body: returnData });
 	}
 }

@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { DefaultReturns } from "../shared/DefaultReturns.ts";
 import { AppError, CustomError } from "../shared/errors/AppError.ts";
 
 export const ErrorMiddleware = (error: Error & Partial<AppError> & Partial<CustomError>, req: Request, res: Response, next: NextFunction) => {
@@ -6,8 +7,11 @@ export const ErrorMiddleware = (error: Error & Partial<AppError> & Partial<Custo
 	const message = error.statusCode ? error.message : "Internal Server Error";
 
 	if (error.customError) {
-		return res.status(statusCode).json(JSON.parse(message));
+		console.log(JSON.parse(message));
+		const { message: messageError, code_error, ...rest } = JSON.parse(message);
+		return res.json(DefaultReturns.error({ message: messageError, status_code: statusCode, code_error, body: rest }));
 	} else {
-		return res.status(statusCode).json({ message });
+		res.status(statusCode);
+		return res.json(DefaultReturns.error({ message, status_code: statusCode, code_error: undefined, body: undefined }));
 	}
 };

@@ -3,6 +3,7 @@ import moment from "moment";
 import { IRateLimit, IRequestCounter } from "../interfaces/AppInterface.ts";
 import { client } from "../models/Redis.ts";
 import { RedisRepository } from "../repositories/RedisRepository.ts";
+import { DefaultReturns } from "../shared/DefaultReturns.ts";
 
 const redisRepository = new RedisRepository(client);
 
@@ -46,13 +47,19 @@ export const RateLimit =
 		if (moment(requestCounterObject.limit_datetime).isSameOrAfter(moment().utc())) {
 			// Check if limitRequestPerTime is over
 			if (requestCounterObject.count >= limitRequestPerTime) {
-				return response.status(429).json({
-					message: messageInError ?? `Too many requests. Please try again in ${restTime} seconds`,
-					request_counter: newRequestCounterObject.count,
-					path,
-					time_remaining: restTime,
-					is_error: true,
-				});
+				response.status(429);
+
+				return response.json(
+					DefaultReturns.error({
+						status_code: 429,
+						message: messageInError ?? `Too many requests. Please try again in ${restTime} seconds`,
+						body: {
+							request_counter: newRequestCounterObject.count,
+							path,
+							time_remaining: restTime,
+						},
+					}),
+				);
 			}
 		}
 

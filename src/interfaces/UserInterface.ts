@@ -36,6 +36,7 @@ export interface IUserDTO {
 	login: string;
 	status: USER_STATUS;
 	report?: IUserReport;
+	current_token?: string;
 }
 
 export interface IUserReport {

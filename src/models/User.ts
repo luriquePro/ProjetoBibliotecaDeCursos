@@ -22,6 +22,7 @@ const UserSchema = new Schema<IUserMongo>(
 			total_courses_launched: { type: Number, default: 0, required: true, index: true },
 			total_courses_completed: { type: Number, default: 0, required: true, index: true },
 		},
+		current_token: { type: String, index: true },
 	},
 	{ timestamps: true },
 );
