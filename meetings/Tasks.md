@@ -11,3 +11,5 @@
 - [x] Fixar os `StatusCodes` em um Enum;
 - [ ] Adicionar `Swagger`;
 - [x] Adicionar Middleware de `Autenticação`;
+
+- [ ] Create para Configurações da Aplicação;
