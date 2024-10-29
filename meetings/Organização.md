@@ -13,3 +13,4 @@
 - Rota de Authenticate
 - Service de Session
 - Generate Token
+- Criar Configuração

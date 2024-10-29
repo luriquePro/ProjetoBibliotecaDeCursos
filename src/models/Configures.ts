@@ -1,8 +1,8 @@
 import { Document, Schema, model } from "mongoose";
 import { CONFIGURE_STATUS } from "../constants/CONFIGURE.ts";
-import { IConfigures } from "../interfaces/ConfigureInterface.ts";
+import { IConfiguresDTO } from "../interfaces/ConfigureInterface.ts";
 
-export interface IConfiguresMongo extends Partial<Omit<Document, "id">>, IConfigures {}
+export interface IConfiguresMongo extends Partial<Omit<Document, "id">>, IConfiguresDTO {}
 
 const ConfiguresSchema = new Schema<IConfiguresMongo>(
 	{
@@ -35,4 +35,4 @@ const ConfiguresSchema = new Schema<IConfiguresMongo>(
 	},
 );
 
-export const Configures = model<IConfiguresMongo>("configures", ConfiguresSchema);
+export const ConfiguresModel = model<IConfiguresMongo>("configures", ConfiguresSchema);
