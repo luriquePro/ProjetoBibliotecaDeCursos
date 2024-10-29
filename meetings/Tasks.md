@@ -12,4 +12,6 @@
 - [ ] Adicionar `Swagger`;
 - [x] Adicionar Middleware de `Autenticação`;
 
-- [ ] Create para Configurações da Aplicação;
+- [x] Create para Configurações da Aplicação;
+- [ ] Proteger a rota com Autenticação Especifica;
+- [ ] Criar Seed e Migrate para configurações;
