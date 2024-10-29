@@ -1,6 +1,7 @@
 import moment from "moment";
 import { USER_STATUS } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "../interfaces/AppInterface.ts";
+import { IConfiguresService } from "../interfaces/ConfigureInterface.ts";
 import { IRedisRepository } from "../interfaces/RedisRepository.ts";
 import { ISessionService } from "../interfaces/SessionInterface.ts";
 import {
@@ -32,6 +33,7 @@ class UserService implements IUserService {
 		private readonly userRepository: IUserRepository,
 		private readonly redisRepository: IRedisRepository,
 		private readonly sessionService: ISessionService,
+		private readonly configuresService: IConfiguresService,
 		private readonly logger = new Logger("user"),
 	) {}
 
@@ -121,6 +123,11 @@ class UserService implements IUserService {
 			statusCode: 201,
 			objectData: returnData,
 		});
+
+		const doAuthenticateWhenRegistering = await this.configuresService.getConfigure("do_authenticate_when_registering");
+		if (doAuthenticateWhenRegistering) {
+			await this.authenticate({ login, password });
+		}
 
 		return DefaultReturns.created({ message: "User registered successfully", body: returnData });
 	}
