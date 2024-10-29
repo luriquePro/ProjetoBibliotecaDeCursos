@@ -11,14 +11,17 @@ export interface IConfiguresCreateDTO {
 	value: string | number | boolean;
 }
 
+export type CONFIGURE_TYPE = boolean | string | number;
+
 export interface IConfiguresRepository {
-	getConfig(config: string): Promise<boolean | string | number | undefined>;
+	getConfig(config: string): Promise<CONFIGURE_TYPE | undefined>;
 	findOneByObj(filter: FilterQuery<IConfiguresDTO>): Promise<IConfiguresDTO | null>;
 	create(dataConfigure: IConfiguresCreateDTO): Promise<IConfiguresDTO>;
 }
 
 export interface IConfiguresService {
 	createConfigure(dataConfigure: IConfiguresCreateDTO): Promise<string>;
+	getConfigure(config: string): Promise<CONFIGURE_TYPE>;
 }
 
 export interface IConfiguresValidations {

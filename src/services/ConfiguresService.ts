@@ -1,4 +1,10 @@
-import { IConfiguresCreateDTO, IConfiguresRepository, IConfiguresService, IConfiguresValidations } from "../interfaces/ConfigureInterface.ts";
+import {
+	CONFIGURE_TYPE,
+	IConfiguresCreateDTO,
+	IConfiguresRepository,
+	IConfiguresService,
+	IConfiguresValidations,
+} from "../interfaces/ConfigureInterface.ts";
 import { BadRequestError } from "../shared/errors/AppError.ts";
 import { Logger } from "../shared/Logger.ts";
 
@@ -28,6 +34,22 @@ class ConfiguresService implements IConfiguresService {
 
 		await this.configuresRepository.create({ config, value });
 		return "Configure created successfully!";
+	}
+
+	public async getConfigure(config: string): Promise<CONFIGURE_TYPE> {
+		const result = await this.configuresRepository.getConfig(config);
+		if (!result) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 404,
+				title: "Configure not Exists",
+				description: "Send a new request to create a new configure with the same config already exists",
+				objectData: { config },
+			});
+
+			throw new BadRequestError("Configure not Exists");
+		}
+		return result;
 	}
 }
 
