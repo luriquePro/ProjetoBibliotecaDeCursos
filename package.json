@@ -13,7 +13,8 @@
 		"lint": "eslint src/**/*.ts --ignore-path .gitignore --ignore-path .eslintignore .",
 		"lint:fix": "eslint src/**/*.ts --fix --ignore-path .gitignore --ignore-path .eslintignore .",
 		"format": "prettier --check --ignore-path .gitignore --ignore-path .prettierignore .",
-		"format:fix": "prettier --write --ignore-path .gitignore --ignore-path .prettierignore ."
+		"format:fix": "prettier --write --ignore-path .gitignore --ignore-path .prettierignore .",
+		"seed": "tsx src/database/seeds/index.ts"
 	},
 	"keywords": [],
 	"author": "lurique",
