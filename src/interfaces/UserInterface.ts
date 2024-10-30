@@ -118,7 +118,9 @@ export interface IUserValidation {
 
 // Interface of Class UserService
 export interface IUserService {
-	registerUser(dataRegistration: IUserRegisterDTO): Promise<IDefaultReturnsCreated<IUserRegisterReturn>>;
+	registerUser(
+		dataRegistration: IUserRegisterDTO,
+	): Promise<IDefaultReturnsCreated<IUserRegisterReturn> | IDefaultReturnsSuccess<IAuthenticateReturn>>;
 	requestResetPassword(dataRequestResetPassword: IRequestResetPassword): Promise<IDefaultReturnsSuccess<IUserRequestResetPasswordReturn>>;
 	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<IDefaultReturnsSuccess<IConfirmResetPasswordReturn>>;
 	authenticate(dataAuthenticate: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>>;

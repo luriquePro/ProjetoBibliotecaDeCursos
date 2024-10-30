@@ -44,7 +44,7 @@ class UserService implements IUserService {
 		cpf,
 		birth_date,
 		login,
-	}: IUserRegisterDTO): Promise<IDefaultReturnsCreated<IUserRegisterReturn>> {
+	}: IUserRegisterDTO): Promise<IDefaultReturnsCreated<IUserRegisterReturn> | IDefaultReturnsSuccess<IAuthenticateReturn>> {
 		const dataValidation = { full_name, email, password, cpf, birth_date, login };
 		await this.userValidations.registerUser(dataValidation);
 
@@ -126,7 +126,7 @@ class UserService implements IUserService {
 
 		const doAuthenticateWhenRegistering = await this.configuresService.getConfigure("do_authenticate_when_registering");
 		if (doAuthenticateWhenRegistering) {
-			await this.authenticate({ login, password });
+			return await this.authenticate({ login, password });
 		}
 
 		return DefaultReturns.created({ message: "User registered successfully", body: returnData });

@@ -1,14 +1,18 @@
 import { Router } from "express";
 import { UserController } from "../controllers/UserController.ts";
 import { RateLimit } from "../middlewares/RateLimitMiddleware.ts";
+import { ConfiguresModel } from "../models/Configures.ts";
 import { client } from "../models/Redis.ts";
 import { SessionModel } from "../models/Session.ts";
 import { UserModel } from "../models/User.ts";
+import { ConfiguresRepository } from "../repositories/ConfiguresRepository.ts";
 import { RedisRepository } from "../repositories/RedisRepository.ts";
 import { SessionRepository } from "../repositories/SessionRepository.ts";
 import { UserRepository } from "../repositories/UserRepository.ts";
+import { ConfiguresService } from "../services/ConfiguresService.ts";
 import { SessionService } from "../services/SessionService.ts";
 import { UserService } from "../services/UserSevice.ts";
+import { ConfiguresValidations } from "../validations/ConfiguresValidations.ts";
 import { UserValidations } from "../validations/UserValidations.ts";
 const UserRoutes = Router();
 
@@ -20,7 +24,11 @@ const userRepository = new UserRepository(UserModel);
 
 const redisRepository = new RedisRepository(client);
 
-const userService = new UserService(userValidations, userRepository, redisRepository, sessionService);
+const configuresRepository = new ConfiguresRepository(ConfiguresModel);
+const configuresValidations = new ConfiguresValidations();
+const configuresService = new ConfiguresService(configuresRepository, configuresValidations);
+
+const userService = new UserService(userValidations, userRepository, redisRepository, sessionService, configuresService);
 const userController = new UserController(userService);
 
 UserRoutes.post("/register", RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }), userController.registerUser.bind(userController));
