@@ -5,6 +5,8 @@
 - [x] Adicionar Cache para o código de Resetar Senha do Usuario;
 - [x] Autenticar o Usuário;
 - [ ] Alterar Senha do Usuário;
+- [ ] Alterar Dados do usuario;
+- [ ] Alterar Imagem do Usuario;
 
 - [x] Adicionar Middleware para `RateLimit`;
 - [x] Criar função padrão para retorno de Erros;
@@ -14,4 +16,13 @@
 
 - [x] Create para Configurações da Aplicação;
 - [ ] Proteger a rota com Autenticação Especifica;
-- [ ] Criar Seed e Migrate para configurações;
+- [x] Criar Seed;
+- [ ] Criar Migrate;
+
+- [ ] Adicionar/Remover Roles adminstrativas para Usuarios
+- [ ] Ver detalhes de Usuario
+- [ ] Listar Usuarios com Páginação e Filtros
+- [ ] Bloquear Usuarios com opção de Mensagem personalizada
+- [ ] Forçar usuario a resetar Login, Email e/ou Senha
+- [ ] Alterar Dados Do Usuario
+- [ ] Forçar logout Multiplo
