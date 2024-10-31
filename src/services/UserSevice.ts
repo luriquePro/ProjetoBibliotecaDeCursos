@@ -360,6 +360,19 @@ class UserService implements IUserService {
 	}
 
 	public async showUser(userId: string): Promise<IDefaultReturnsSuccess<IShowUserReturn>> {
+		const showUserCached = await this.redisRepository.getShowUserCache(userId);
+		if (showUserCached) {
+			await this.logger.info({
+				entityId: userId,
+				title: "Show user successfully",
+				description: `Show user successfully to ${userId}`,
+				statusCode: 200,
+				objectData: showUserCached,
+			});
+
+			return DefaultReturns.success({ message: "Show user successfully", body: showUserCached });
+		}
+
 		const userWithThisId = await this.userRepository.findUserById(userId);
 		if (!userWithThisId) {
 			await this.logger.error({
@@ -392,6 +405,7 @@ class UserService implements IUserService {
 			objectData: returnData,
 		});
 
+		await this.redisRepository.saveShowUserCache(userId, returnData);
 		return DefaultReturns.success({ message: "Show user successfully", body: returnData });
 	}
 }
