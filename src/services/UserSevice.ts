@@ -49,8 +49,13 @@ class UserService implements IUserService {
 		const dataValidation = { full_name, email, password, cpf, birth_date, login };
 		await this.userValidations.registerUser(dataValidation);
 
+		const [userExistsWithSameCpf, userExistsWithSameEmail, userExistsWithSameLogin] = await Promise.all([
+			await this.userRepository.findUserByCPF(cpf),
+			await this.userRepository.findUserByEmail(email),
+			await this.userRepository.findUserByLogin(login),
+		]);
+
 		// Check if CPF is unique
-		const userExistsWithSameCpf = await this.userRepository.findUserByCPF(cpf);
 		if (userExistsWithSameCpf) {
 			await this.logger.error({
 				entityId: userExistsWithSameCpf.id,
@@ -63,7 +68,6 @@ class UserService implements IUserService {
 		}
 
 		// Check if email is unique
-		const userExistsWithSameEmail = await this.userRepository.findUserByEmail(email);
 		if (userExistsWithSameEmail) {
 			await this.logger.error({
 				entityId: userExistsWithSameEmail.id,
@@ -76,7 +80,6 @@ class UserService implements IUserService {
 		}
 
 		// Check if login is unique
-		const userExistsWithSameLogin = await this.userRepository.findUserByLogin(login);
 		if (userExistsWithSameLogin) {
 			await this.logger.error({
 				entityId: userExistsWithSameLogin.id,
