@@ -25,7 +25,7 @@ class App implements IApp {
 
 		this.whitelistIps = this.ips.split(",")! ?? ["http://localhost:3333"];
 
-		this.express.use("/tmp", express.static(__dirname + "/tmp"));
+		// this.express.use("/tmp", express.static(__dirname + "/tmp"));
 
 		new ApmService().startElastic();
 
