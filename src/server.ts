@@ -1,10 +1,24 @@
-import { app } from "./app.ts";
+import moment from "moment";
+import { App } from "./app.ts";
 
-const PORT = Number(process.env.PORT!);
-const IS_TEST_AMBIENT = process.env.NODE_ENV === "TEST";
+class Server {
+	public application: App;
+	public port: number;
+	public isTestAmbient = process.env.NODE_ENV === "TEST";
 
-if (!IS_TEST_AMBIENT) {
-	app.listen({ port: PORT }, () => {
-		console.log(`Servidor iniciado na url: http://localhost:${PORT}.`);
-	});
+	constructor() {
+		this.application = new App();
+		this.port = Number(process.env.PORT!);
+	}
+
+	public run() {
+		if (!this.isTestAmbient) {
+			this.application.express.listen(this.port, () => {
+				console.log(`Server is running in url: http://localhost:${this.port}. Started of ${moment().utc().toDate()}`);
+			});
+		}
+	}
 }
+
+const SERVER = new Server();
+SERVER.run();

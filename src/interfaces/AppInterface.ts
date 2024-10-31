@@ -1,3 +1,5 @@
+import { Application } from "express";
+
 export interface IRequestCounter {
 	count: number;
 	limit_datetime: string;
@@ -39,4 +41,12 @@ export interface IDefaultReturnsCreated<T> extends IDefaultReturns<T> {
 export interface IDefaultReturnsError<T> extends IDefaultReturns<T> {
 	status_code: STATUS_CODES;
 	is_error: true;
+}
+
+export interface IApp extends IAppParams {}
+
+interface IAppParams {
+	express: Application;
+	isProduction: boolean;
+	formatError: boolean;
 }
