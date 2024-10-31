@@ -37,6 +37,7 @@ export interface IUserDTO {
 	status: USER_STATUS;
 	report?: IUserReport;
 	current_token?: string;
+	created_at: Date;
 }
 
 export interface IUserReport {
@@ -48,7 +49,7 @@ export interface IUserReport {
 	total_courses_completed: number;
 }
 
-export interface IUserRegisterRepository extends IUserDTO {}
+export interface IUserRegisterRepository extends Omit<IUserDTO, "created_at"> {}
 
 // interface of Data that repository return
 export interface IUserRegisterRepositoryReturn extends IUserDTO {
@@ -108,6 +109,17 @@ export interface ITokenCreateDTO {
 
 export interface IAuthenticateReturn extends IGenerateTokenReturn {}
 
+export interface IShowUserReturn {
+	full_name: string;
+	cpf: string;
+	email: string;
+	login: string;
+	birth_date: Date;
+	created_at: Date;
+	first_login: Date;
+	last_login: Date;
+}
+
 // Interface of Class UserValidations
 export interface IUserValidation {
 	registerUser(dataValidation: IUserRegisterDTO): Promise<void>;
@@ -124,6 +136,7 @@ export interface IUserService {
 	requestResetPassword(dataRequestResetPassword: IRequestResetPassword): Promise<IDefaultReturnsSuccess<IUserRequestResetPasswordReturn>>;
 	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<IDefaultReturnsSuccess<IConfirmResetPasswordReturn>>;
 	authenticate(dataAuthenticate: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>>;
+	showUser(userId: string): Promise<IDefaultReturnsSuccess<IShowUserReturn>>;
 }
 
 // Interface of Class UserRepository

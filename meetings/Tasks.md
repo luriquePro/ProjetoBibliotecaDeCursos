@@ -4,6 +4,7 @@
 - [x] Resetar Senha do Usuário;
 - [x] Adicionar Cache para o código de Resetar Senha do Usuario;
 - [x] Autenticar o Usuário;
+- [ ] Show do Usuario com Cache;
 - [ ] Alterar Senha do Usuário;
 - [ ] Alterar Dados do usuario;
 - [ ] Alterar Imagem do Usuario;
@@ -26,3 +27,4 @@
 - [ ] Forçar usuario a resetar Login, Email e/ou Senha
 - [ ] Alterar Dados Do Usuario
 - [ ] Forçar logout Multiplo
+- [ ] Conseguir enviar email com templates personalizadas

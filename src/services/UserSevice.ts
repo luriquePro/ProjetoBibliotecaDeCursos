@@ -11,6 +11,7 @@ import {
 	IConfirmResetPasswordReturn,
 	IRequestResetPassword,
 	IResetPasswordCode,
+	IShowUserReturn,
 	IUserRegisterDTO,
 	IUserRegisterRepository,
 	IUserRegisterReturn,
@@ -356,6 +357,42 @@ class UserService implements IUserService {
 			{ $set: { report: reportUpdate, current_token: returnData.token } },
 		);
 		return DefaultReturns.success({ message: "Login successfully", body: returnData });
+	}
+
+	public async showUser(userId: string): Promise<IDefaultReturnsSuccess<IShowUserReturn>> {
+		const userWithThisId = await this.userRepository.findUserById(userId);
+		if (!userWithThisId) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "User with this id does not Exists",
+				description: "Send a new request to show an invalid user",
+				objectData: { userId },
+			});
+
+			throw new NotFoundError("User does not Exists");
+		}
+
+		const returnData: IShowUserReturn = {
+			full_name: userWithThisId.first_name + " " + userWithThisId.last_name,
+			login: userWithThisId.login,
+			email: userWithThisId.email,
+			cpf: userWithThisId.cpf,
+			created_at: userWithThisId.created_at,
+			birth_date: userWithThisId.birth_date,
+			first_login: userWithThisId.report!.first_access,
+			last_login: userWithThisId.report!.last_access,
+		};
+
+		await this.logger.info({
+			entityId: userWithThisId.id,
+			title: "Show user successfully",
+			description: `Show user successfully to ${userWithThisId.login}`,
+			statusCode: 200,
+			objectData: returnData,
+		});
+
+		return DefaultReturns.success({ message: "Show user successfully", body: returnData });
 	}
 }
 

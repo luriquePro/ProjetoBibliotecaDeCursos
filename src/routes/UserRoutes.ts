@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { UserController } from "../controllers/UserController.ts";
+import { IsAuthenticate } from "../middlewares/AuthenticateMiddleware.ts";
 import { RateLimit } from "../middlewares/RateLimitMiddleware.ts";
+import { SetUserApm } from "../middlewares/SetUserApmMiddleware.ts";
 import { ConfiguresModel } from "../models/Configures.ts";
 import { client } from "../models/Redis.ts";
 import { SessionModel } from "../models/Session.ts";
@@ -14,6 +16,7 @@ import { SessionService } from "../services/SessionService.ts";
 import { UserService } from "../services/UserSevice.ts";
 import { ConfiguresValidations } from "../validations/ConfiguresValidations.ts";
 import { UserValidations } from "../validations/UserValidations.ts";
+
 const UserRoutes = Router();
 
 const sessionRepository = new SessionRepository(SessionModel);
@@ -47,6 +50,13 @@ UserRoutes.post(
 
 UserRoutes.post("/authenticate", RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }), userController.authenticate.bind(userController));
 
+UserRoutes.get(
+	"/show",
+	IsAuthenticate,
+	SetUserApm,
+	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
+	userController.showUser.bind(userController),
+);
 // UserRoutes.post(
 // 	"/change-password",
 // 	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),

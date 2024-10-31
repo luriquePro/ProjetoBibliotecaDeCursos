@@ -14,3 +14,6 @@
 - Service de Session
 - Generate Token
 - Criar Configuração
+- Show Usuario
+
+- Validações
