@@ -4,7 +4,7 @@
 - [x] Resetar Senha do Usuário;
 - [x] Adicionar Cache para o código de Resetar Senha do Usuario;
 - [x] Autenticar o Usuário;
-- [ ] Show do Usuario com Cache;
+- [x] Show do Usuario com Cache;
 - [ ] Alterar Senha do Usuário;
 - [ ] Alterar Dados do usuario;
 - [ ] Alterar Imagem do Usuario;
