@@ -7,6 +7,8 @@ import { ISessionService } from "../interfaces/SessionInterface.ts";
 import {
 	IAuthenticate,
 	IAuthenticateReturn,
+	IChangePassword,
+	IChangePasswordReturn,
 	IConfirmResetPassword,
 	IConfirmResetPasswordReturn,
 	IRequestResetPassword,
@@ -410,6 +412,53 @@ class UserService implements IUserService {
 
 		await this.redisRepository.saveShowUserCache(userId, returnData);
 		return DefaultReturns.success({ message: "Show user successfully", body: returnData });
+	}
+
+	public async changePassword({ newPassword, oldPassword, userId }: IChangePassword): Promise<IDefaultReturnsSuccess<IChangePasswordReturn>> {
+		const dataValidation = { newPassword, oldPassword, userId };
+		await this.userValidations.changePassword(dataValidation);
+
+		const userWithThisId = await this.userRepository.findUserById(userId);
+		if (!userWithThisId) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "User with this id does not Exists",
+				description: "Send a new request to change password with an invalid user",
+				objectData: { userId },
+			});
+
+			throw new NotFoundError("User does not Exists");
+		}
+
+		const oldPasswordHashed = HashPassword(oldPassword);
+		const userWithOldPasswordHashed = await this.userRepository.findOneByObj({ id: userId, password: oldPasswordHashed });
+		if (!userWithOldPasswordHashed) {
+			await this.logger.error({
+				entityId: userWithThisId.id,
+				statusCode: 400,
+				title: "Invalid old password",
+				description: "Send a new request to change password with an invalid old password",
+				objectData: { userId },
+			});
+
+			throw new BadRequestError("Enter a valid old password");
+		}
+
+		const newPasswordHashed = HashPassword(newPassword);
+
+		await this.userRepository.updateUser({ id: userId }, { $set: { password: newPasswordHashed } });
+		await this.sessionService.inactivateAllUserSessions(userId);
+
+		await this.logger.info({
+			entityId: userWithThisId.id,
+			title: "Change password successfully",
+			description: `Change password successfully to ${userWithThisId.login}`,
+			statusCode: 200,
+			objectData: { oldPasswordHashed, newPasswordHashed },
+		});
+
+		return DefaultReturns.success({ message: "Change password successfully" });
 	}
 }
 

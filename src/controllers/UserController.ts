@@ -1,6 +1,13 @@
 import { Request, Response } from "express";
 import { STATUS_CODES } from "../interfaces/AppInterface.ts";
-import { IAuthenticate, IConfirmResetPassword, IRequestResetPassword, IUserRegisterDTO, IUserService } from "../interfaces/UserInterface.ts";
+import {
+	IAuthenticate,
+	IChangePassword,
+	IConfirmResetPassword,
+	IRequestResetPassword,
+	IUserRegisterDTO,
+	IUserService,
+} from "../interfaces/UserInterface.ts";
 
 class UserController {
 	constructor(private readonly userService: IUserService) {}
@@ -40,6 +47,17 @@ class UserController {
 	public async showUser(request: Request, response: Response): Promise<Response> {
 		const userId = request.user!.id;
 		const result = await this.userService.showUser(userId);
+		return response.json(result);
+	}
+
+	public async changePassword(request: Request, response: Response): Promise<Response> {
+		const dataChangePassword: IChangePassword = {
+			newPassword: request.body.new_password,
+			oldPassword: request.body.old_password,
+			userId: request.user!.id,
+		};
+
+		const result = await this.userService.changePassword(dataChangePassword);
 		return response.json(result);
 	}
 }

@@ -1,11 +1,13 @@
 # Tasks
 
+- [ ] Transformar App e Server em Classe;
+
 - [x] Cadastrar Usuário;
 - [x] Resetar Senha do Usuário;
 - [x] Adicionar Cache para o código de Resetar Senha do Usuario;
 - [x] Autenticar o Usuário;
 - [x] Show do Usuario com Cache;
-- [ ] Alterar Senha do Usuário;
+- [x] Alterar Senha do Usuário;
 - [ ] Alterar Dados do usuario;
 - [ ] Alterar Imagem do Usuario;
 
@@ -20,11 +22,11 @@
 - [x] Criar Seed;
 - [ ] Criar Migrate;
 
-- [ ] Adicionar/Remover Roles adminstrativas para Usuarios
-- [ ] Ver detalhes de Usuario
-- [ ] Listar Usuarios com Páginação e Filtros
-- [ ] Bloquear Usuarios com opção de Mensagem personalizada
-- [ ] Forçar usuario a resetar Login, Email e/ou Senha
-- [ ] Alterar Dados Do Usuario
-- [ ] Forçar logout Multiplo
-- [ ] Conseguir enviar email com templates personalizadas
+- [ ] Adicionar/Remover Roles adminstrativas para Usuarios;
+- [ ] Ver detalhes de Usuario;
+- [ ] Listar Usuarios com Páginação e Filtros;
+- [ ] Bloquear Usuarios com opção de Mensagem personalizada;
+- [ ] Forçar usuario a resetar Login, Email e/ou Senha;
+- [ ] Alterar Dados Do Usuario;
+- [ ] Forçar logout Multiplo;
+- [ ] Conseguir enviar email com templates personalizadas;

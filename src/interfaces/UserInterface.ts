@@ -120,12 +120,21 @@ export interface IShowUserReturn {
 	last_login: Date;
 }
 
+export interface IChangePassword {
+	oldPassword: string;
+	newPassword: string;
+	userId: string;
+}
+
+export interface IChangePasswordReturn {}
+
 // Interface of Class UserValidations
 export interface IUserValidation {
 	registerUser(dataValidation: IUserRegisterDTO): Promise<void>;
 	requestResetPassword(emailRequester: string): Promise<void>;
 	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<void>;
 	authenticate(dataAuthenticate: IAuthenticate): Promise<void>;
+	changePassword(dataChangePassword: IChangePassword): Promise<void>;
 }
 
 // Interface of Class UserService
@@ -137,6 +146,7 @@ export interface IUserService {
 	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<IDefaultReturnsSuccess<IConfirmResetPasswordReturn>>;
 	authenticate(dataAuthenticate: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>>;
 	showUser(userId: string): Promise<IDefaultReturnsSuccess<IShowUserReturn>>;
+	changePassword(dataChangePassword: IChangePassword): Promise<IDefaultReturnsSuccess<IChangePasswordReturn>>;
 }
 
 // Interface of Class UserRepository

@@ -21,7 +21,7 @@ export enum STATUS_CODES {
 
 export interface IDefaultReturns<T> {
 	message: string;
-	body: T;
+	body?: T;
 	status_code?: STATUS_CODES;
 	code_error?: string;
 }

@@ -57,12 +57,13 @@ UserRoutes.get(
 	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
 	userController.showUser.bind(userController),
 );
-// UserRoutes.post(
-// 	"/change-password",
-// 	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
-// 	IsAuthenticate,
-// 	SetUserApm,
-// 	userController.changePassowrd.bind(userController),
-// );
+
+UserRoutes.patch(
+	"/change-password",
+	IsAuthenticate,
+	SetUserApm,
+	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
+	userController.changePassword.bind(userController),
+);
 
 export { UserRoutes };
