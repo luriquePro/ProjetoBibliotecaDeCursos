@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { ConfiguresController } from "../controllers/ConfiguresController.ts";
 import { IsAuthenticate } from "../middlewares/AuthenticateMiddleware.ts";
+import { isProtection } from "../middlewares/ProtectionMiddleware.ts";
 import { ConfiguresModel } from "../models/Configures.ts";
 import { ConfiguresRepository } from "../repositories/ConfiguresRepository.ts";
 import { ConfiguresService } from "../services/ConfiguresService.ts";
@@ -12,6 +13,6 @@ const configuresValidations = new ConfiguresValidations();
 const configuresService = new ConfiguresService(configuresRepository, configuresValidations);
 const configuresController = new ConfiguresController(configuresService);
 
-ConfiguresRoutes.post("/create", IsAuthenticate, configuresController.createConfigure.bind(configuresController));
+ConfiguresRoutes.post("/create", IsAuthenticate, isProtection, configuresController.createConfigure.bind(configuresController));
 
 export { ConfiguresRoutes };

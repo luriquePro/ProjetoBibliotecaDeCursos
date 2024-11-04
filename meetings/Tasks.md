@@ -1,6 +1,6 @@
 # Tasks
 
-- [ ] Transformar App e Server em Classe;
+- [x] Transformar App e Server em Classe;
 
 - [x] Cadastrar Usuário;
 - [x] Resetar Senha do Usuário;

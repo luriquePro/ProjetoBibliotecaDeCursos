@@ -3,6 +3,8 @@ import "dotenv/config";
 import express, { Application } from "express";
 import "express-async-errors";
 import mongoose from "mongoose";
+import path from "path";
+import { fileURLToPath } from "url";
 import { IApp } from "./interfaces/AppInterface.ts";
 import { ErrorMiddleware } from "./middlewares/ErrorMiddleware.ts";
 import { ObservabilityApm } from "./middlewares/ObservabilityMiddleware.ts";
@@ -15,9 +17,11 @@ class App implements IApp {
 	public formatError: boolean;
 	private ips: string;
 	private whitelistIps: string[] = [];
+	private __dirname: string;
 	private corsOptions = this.getCorsOptions();
 
 	public constructor() {
+		this.__dirname = path.dirname(fileURLToPath(import.meta.url));
 		this.express = express();
 		this.isProduction = process.env.NODE_ENV === "production" ? true : false;
 		this.formatError = process.env.FORMAT_SHOW_ERRORS === "true" ? true : false;
@@ -25,7 +29,7 @@ class App implements IApp {
 
 		this.whitelistIps = this.ips.split(",")! ?? ["http://localhost:3333"];
 
-		// this.express.use("/tmp", express.static(__dirname + "/tmp"));
+		this.express.use("/tmp", express.static(this.__dirname + "/tmp"));
 
 		new ApmService().startElastic();
 
