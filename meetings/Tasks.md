@@ -9,8 +9,11 @@
 - [x] Show do Usuario com Cache;
 - [x] Alterar Senha do Usuário;
 - [ ] Alterar Dados do usuario;
-- [ ] Alterar Imagem do Usuario;
+- [x] Alterar Imagem do Usuario;
 - [ ] Deletar Conta;
+- [ ] Autenticação sem Senha;
+- [ ] Linkar servidor de Email com rabbitmq;
+- [ ] Registrar com confirmação de Email;
 
 - [x] Adicionar Middleware para `RateLimit`;
 - [x] Criar função padrão para retorno de Erros;
@@ -31,3 +34,12 @@
 - [ ] Alterar Dados Do Usuario;
 - [ ] Forçar logout Multiplo;
 - [ ] Conseguir enviar email com templates personalizadas;
+
+- [ ] Sistema de Notificações Internas
+
+# Api de Envio de Emails
+
+- [ ] Enviar por RMQP estrutura para enviar email
+- [ ] Receber por RMQP e validar;
+- [ ] Enviar Email;
+- [ ] Salvar Envios em um Banco a parte
