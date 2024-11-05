@@ -59,4 +59,10 @@ export class RedisRepository implements IRedisRepository {
 
 		return null;
 	}
+
+	@captureRedisAction("delShowUserCache")
+	public async delShowUserCache(userId: string): Promise<void> {
+		const key = `show-user-${userId}`;
+		await this.redisClient.del(key);
+	}
 }

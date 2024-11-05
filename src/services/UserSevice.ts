@@ -1,5 +1,11 @@
+import fs from "fs";
+import imageThumbnail from "image-thumbnail";
 import moment from "moment";
-import { USER_STATUS } from "../constants/USER.ts";
+import path from "path";
+import { fileURLToPath } from "url";
+import { promisify } from "util";
+
+import { ALLOWED_AVATAR_IMAGE_TYPES, USER_STATUS } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "../interfaces/AppInterface.ts";
 import { IConfiguresService } from "../interfaces/ConfigureInterface.ts";
 import { IRedisRepository } from "../interfaces/RedisRepository.ts";
@@ -14,6 +20,8 @@ import {
 	IRequestResetPassword,
 	IResetPasswordCode,
 	IShowUserReturn,
+	IUploadAvatar,
+	IUploadAvatarReturn,
 	IUserRegisterDTO,
 	IUserRegisterRepository,
 	IUserRegisterReturn,
@@ -29,6 +37,7 @@ import { Logger } from "../shared/Logger.ts";
 import { GenerateToken } from "../utils/GenerateToken.ts";
 import { HashPassword } from "../utils/HashPassword.ts";
 import { IdGenerate } from "../utils/IdGenerate.ts";
+import { MAX_AVATAR_IMAGE_SIZE } from "./../constants/USER.ts";
 
 class UserService implements IUserService {
 	constructor(
@@ -400,6 +409,7 @@ class UserService implements IUserService {
 			birth_date: userWithThisId.birth_date,
 			first_login: userWithThisId.report!.first_access,
 			last_login: userWithThisId.report!.last_access,
+			avatar_url: userWithThisId.avatar_url,
 		};
 
 		await this.logger.info({
@@ -459,6 +469,81 @@ class UserService implements IUserService {
 		});
 
 		return DefaultReturns.success({ message: "Change password successfully" });
+	}
+
+	public async uploadAvatar({ userId, avatar }: IUploadAvatar): Promise<IDefaultReturnsSuccess<IUploadAvatarReturn>> {
+		if (!avatar) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "Invalid avatar",
+				description: "Send a new request to upload avatar with an invalid avatar",
+				objectData: { userId },
+			});
+
+			throw new BadRequestError("Enter a valid avatar");
+		}
+
+		const userWithThisId = await this.userRepository.findUserById(userId);
+		if (!userWithThisId) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "User with this id does not Exists",
+				description: "Send a new request to upload avatar with an invalid user",
+				objectData: { userId },
+			});
+
+			throw new NotFoundError("User does not Exists");
+		}
+
+		const avatarImageType = avatar.mimetype?.split("/")[1]!;
+		const avatarImageTypeIsValid = ALLOWED_AVATAR_IMAGE_TYPES.includes(avatarImageType);
+		if (!avatarImageTypeIsValid) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "Invalid avatar type",
+				description: "Send a new request to upload avatar with an invalid avatar type",
+				objectData: { userId, avatar },
+			});
+
+			throw new BadRequestError("Enter a valid avatar type");
+		}
+
+		const avatarImageSizeIsValid = avatar.size <= MAX_AVATAR_IMAGE_SIZE;
+		if (!avatarImageSizeIsValid) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "Invalid avatar size",
+				description: "Send a new request to upload avatar with an invalid avatar size",
+				objectData: { userId, avatar },
+			});
+
+			throw new BadRequestError(`Enter a valid avatar size less than ${MAX_AVATAR_IMAGE_SIZE} bytes (${MAX_AVATAR_IMAGE_SIZE / 1024}KB)`);
+		}
+
+		const __DIRNAME = path.dirname(fileURLToPath(import.meta.url));
+
+		const fileName = IdGenerate() + "." + avatarImageType;
+		const fileStream = await imageThumbnail(avatar.filepath, { responseType: "buffer", percentage: 70 });
+		const filePath = path.join(__DIRNAME, "..", "tmp", fileName);
+
+		const writeFileAsync = promisify(fs.writeFile);
+		await writeFileAsync(filePath, fileStream);
+
+		if (userWithThisId.avatar) {
+			const pathOldAvatar = path.join(__DIRNAME, "..", "tmp", userWithThisId.avatar);
+			const unlinkFileAsync = promisify(fs.unlink);
+			await unlinkFileAsync(pathOldAvatar);
+		}
+
+		await this.userRepository.updateUser({ id: userId }, { $set: { avatar: fileName } });
+
+		await this.redisRepository.delShowUserCache(userId);
+
+		return DefaultReturns.success({ message: "Upload avatar successfully" });
 	}
 }
 

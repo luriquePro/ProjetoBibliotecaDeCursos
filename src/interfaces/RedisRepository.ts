@@ -8,4 +8,5 @@ export interface IRedisRepository {
 	getResetPasswordCode(resetCode: string): Promise<IResetPasswordCode | null>;
 	saveShowUserCache(userId: string, dataShow: IShowUserReturn): Promise<void>;
 	getShowUserCache(userId: string): Promise<IShowUserReturn | null>;
+	delShowUserCache(userId: string): Promise<void>;
 }

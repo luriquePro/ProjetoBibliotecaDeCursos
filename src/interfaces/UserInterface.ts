@@ -1,3 +1,4 @@
+import { File } from "formidable";
 import mongoose, { FilterQuery, UpdateQuery } from "mongoose";
 import { USER_STATUS } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "./AppInterface.ts";
@@ -37,6 +38,8 @@ export interface IUserDTO {
 	status: USER_STATUS;
 	report?: IUserReport;
 	current_token?: string;
+	avatar?: string;
+	avatar_url?: string;
 	created_at: Date;
 }
 
@@ -118,6 +121,7 @@ export interface IShowUserReturn {
 	created_at: Date;
 	first_login: Date;
 	last_login: Date;
+	avatar_url?: string;
 }
 
 export interface IChangePassword {
@@ -127,6 +131,13 @@ export interface IChangePassword {
 }
 
 export interface IChangePasswordReturn {}
+
+export interface IUploadAvatar {
+	userId: string;
+	avatar: File;
+}
+
+export interface IUploadAvatarReturn {}
 
 // Interface of Class UserValidations
 export interface IUserValidation {
@@ -147,6 +158,7 @@ export interface IUserService {
 	authenticate(dataAuthenticate: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>>;
 	showUser(userId: string): Promise<IDefaultReturnsSuccess<IShowUserReturn>>;
 	changePassword(dataChangePassword: IChangePassword): Promise<IDefaultReturnsSuccess<IChangePasswordReturn>>;
+	uploadAvatar(dataUploadAvatar: IUploadAvatar): Promise<IDefaultReturnsSuccess<IUploadAvatarReturn>>;
 }
 
 // Interface of Class UserRepository

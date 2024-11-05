@@ -23,6 +23,7 @@ const UserSchema = new Schema<IUserMongo>(
 			total_courses_completed: { type: Number, default: 0, required: true, index: true },
 		},
 		current_token: { type: String, index: true },
+		avatar: { type: String, index: true },
 	},
 	{ timestamps: true },
 );
@@ -30,6 +31,10 @@ const UserSchema = new Schema<IUserMongo>(
 UserSchema.post(["findOne", "findOneAndUpdate"], function (doc) {
 	if (doc) {
 		doc.password = undefined;
+
+		if (doc.avatar) {
+			doc.avatar_url = `http://localhost:${process.env.PORT}/tmp/${doc.avatar}`;
+		}
 	}
 });
 

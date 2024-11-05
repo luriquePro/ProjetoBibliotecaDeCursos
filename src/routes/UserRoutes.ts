@@ -66,4 +66,12 @@ UserRoutes.patch(
 	userController.changePassword.bind(userController),
 );
 
+UserRoutes.post(
+	"/upload-avatar",
+	IsAuthenticate,
+	SetUserApm,
+	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
+	userController.uploadAvatar.bind(userController),
+);
+
 export { UserRoutes };

@@ -10,6 +10,7 @@
 - [x] Alterar Senha do Usuário;
 - [ ] Alterar Dados do usuario;
 - [ ] Alterar Imagem do Usuario;
+- [ ] Deletar Conta;
 
 - [x] Adicionar Middleware para `RateLimit`;
 - [x] Criar função padrão para retorno de Erros;

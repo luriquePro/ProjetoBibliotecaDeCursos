@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
+import formidable from "formidable";
 import { STATUS_CODES } from "../interfaces/AppInterface.ts";
 import {
 	IAuthenticate,
 	IChangePassword,
 	IConfirmResetPassword,
 	IRequestResetPassword,
+	IUploadAvatar,
 	IUserRegisterDTO,
 	IUserService,
 } from "../interfaces/UserInterface.ts";
@@ -59,6 +61,29 @@ class UserController {
 
 		const result = await this.userService.changePassword(dataChangePassword);
 		return response.json(result);
+	}
+
+	public async uploadAvatar(request: Request, response: Response): Promise<Response> {
+		return new Promise(resolve => {
+			const userId = request.user!.id;
+
+			const form = formidable({ multiples: false });
+
+			form.parse(request, (error, _, files) => {
+				if (error) {
+					return resolve({ userId, avatar: undefined });
+				}
+
+				if (!files || !files.avatar || !files.avatar.length) {
+					return resolve({ userId, avatar: undefined });
+				}
+
+				return resolve({ userId, avatar: files.avatar[0] });
+			});
+		}).then(async dataUpload => {
+			const result = await this.userService.uploadAvatar(dataUpload as IUploadAvatar);
+			return response.json(result);
+		});
 	}
 }
 

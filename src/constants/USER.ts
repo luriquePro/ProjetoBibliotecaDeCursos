@@ -9,3 +9,7 @@ export enum SESSION_STATUS {
 	FORCE_DISABLED = "FORCE_DISABLED",
 	CANCELED = "CANCELED",
 }
+
+export const ALLOWED_AVATAR_IMAGE_TYPES = ["jpg", "jpeg", "png"];
+
+export const MAX_AVATAR_IMAGE_SIZE = 100 * 1024;
