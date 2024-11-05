@@ -37,6 +37,8 @@
 
 - [ ] Sistema de Notificações Internas
 
+- [ ] Adicionar Variaveis de constants de Avatar no appConfig.
+
 # Api de Envio de Emails
 
 - [ ] Enviar por RMQP estrutura para enviar email
