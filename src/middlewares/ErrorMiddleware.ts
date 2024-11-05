@@ -8,8 +8,12 @@ export const ErrorMiddleware = (error: Error & Partial<AppError> & Partial<Custo
 
 	if (error.customError) {
 		console.log(JSON.parse(message));
-		const { message: messageError, code_error, ...rest } = JSON.parse(message);
-		return res.json(DefaultReturns.error({ message: messageError, status_code: statusCode, code_error, body: rest }));
+		const { message: messageError, code_error, ...body } = JSON.parse(message);
+
+		const bodyKeys = Object.keys(body);
+		const bodyObject = bodyKeys.length ? body : undefined;
+
+		return res.json(DefaultReturns.error({ message: messageError, status_code: statusCode, code_error, body: bodyObject }));
 	} else {
 		res.status(statusCode);
 		return res.json(DefaultReturns.error({ message, status_code: statusCode, code_error: undefined, body: undefined }));

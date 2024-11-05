@@ -10,7 +10,7 @@ export class Logger {
 	private logger: ElasticApmNode.Logger;
 
 	constructor(entity: string) {
-		this.entity = entity;
+		this.entity = entity.toLowerCase();
 		this.logger = new ApmService().elasticLogger();
 	}
 	private createLogData<T>(level: ILogLevels, data: ILogLevel<T>): IElasticDataLogger<T> {
