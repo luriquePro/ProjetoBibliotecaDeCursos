@@ -77,7 +77,7 @@ UserRoutes.post(
 );
 
 UserRoutes.post(
-	"/set-roles",
+	"/set-roles/:userId",
 	IsAuthenticate,
 	isProtection,
 	isAllowed(["admin"]),
@@ -87,13 +87,22 @@ UserRoutes.post(
 );
 
 UserRoutes.post(
-	"/remove-roles",
+	"/remove-roles/:userId",
 	IsAuthenticate,
 	isProtection,
 	isAllowed(["admin"]),
 	SetUserApm,
 	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
 	userController.removeRoles.bind(userController),
+);
+
+UserRoutes.get(
+	"/get-profile/:userId",
+	IsAuthenticate,
+	isAllowed(["admin", "editor", "manager"]),
+	SetUserApm,
+	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
+	userController.getUserProfile.bind(userController),
 );
 
 export { UserRoutes };

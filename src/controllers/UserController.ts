@@ -49,7 +49,7 @@ class UserController {
 
 	public async showUser(request: Request, response: Response): Promise<Response> {
 		const userId = request.user!.id;
-		const result = await this.userService.showUser(userId);
+		const result = await this.userService.getUserProfile(userId);
 		return response.json(result);
 	}
 
@@ -88,16 +88,23 @@ class UserController {
 	}
 
 	public async setRoles(request: Request, response: Response): Promise<Response> {
-		const userId = request.user!.id;
+		const userId = request.params.userId;
 		const roles = request.body.roles as Roles[];
 		const result = await this.userService.setRoles({ userId, roles });
 		return response.json(result);
 	}
 
 	public async removeRoles(request: Request, response: Response): Promise<Response> {
-		const userId = request.user!.id;
+		const userId = request.params.userId;
 		const roles = request.body.roles as Roles[];
 		const result = await this.userService.removeRoles({ userId, roles });
+		return response.json(result);
+	}
+
+	public async getUserProfile(request: Request, response: Response): Promise<Response> {
+		const userId = request.params.userId;
+		const isAdmin = request.user?.roles.includes("admin");
+		const result = await this.userService.getUserProfile(userId, isAdmin);
 		return response.json(result);
 	}
 }

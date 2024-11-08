@@ -25,10 +25,10 @@
 
 - [x] Adicionar/Remover Roles adminstrativas para Usuarios;
 - [x] Middleware de Roles;
-- [ ] Ver detalhes de Usuario;
+- [x] Ver detalhes de Usuario;
+- [ ] Forçar logout Multiplo;
 - [ ] Listar Usuarios com Páginação e Filtros;
 - [ ] Bloquear Usuarios com opção de Mensagem personalizada;
 - [ ] Forçar usuario a resetar Login, Email e/ou Senha;
 - [ ] Alterar Dados Do Usuario;
-- [ ] Forçar logout Multiplo;
 - [ ] Conseguir enviar email com templates personalizadas;

@@ -116,6 +116,7 @@ export interface ITokenCreateDTO {
 export interface IAuthenticateReturn extends IGenerateTokenReturn {}
 
 export interface IShowUserReturn {
+	id: string;
 	full_name: string;
 	cpf: string;
 	email: string;
@@ -125,6 +126,7 @@ export interface IShowUserReturn {
 	first_login: Date;
 	last_login: Date;
 	avatar_url?: string;
+	roles?: Roles[];
 }
 
 export interface IChangePassword {
@@ -173,7 +175,7 @@ export interface IUserService {
 	requestResetPassword(dataRequestResetPassword: IRequestResetPassword): Promise<IDefaultReturnsSuccess<IUserRequestResetPasswordReturn>>;
 	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<IDefaultReturnsSuccess<IConfirmResetPasswordReturn>>;
 	authenticate(dataAuthenticate: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>>;
-	showUser(userId: string): Promise<IDefaultReturnsSuccess<IShowUserReturn>>;
+	getUserProfile(userId: string, isAdmin?: boolean): Promise<IDefaultReturnsSuccess<IShowUserReturn>>;
 	changePassword(dataChangePassword: IChangePassword): Promise<IDefaultReturnsSuccess<IChangePasswordReturn>>;
 	uploadAvatar(dataUploadAvatar: IUploadAvatar): Promise<IDefaultReturnsSuccess<IUploadAvatarReturn>>;
 	setRoles(dataSetRole: ISetRole): Promise<IDefaultReturnsSuccess<ISetRoleReturn>>;

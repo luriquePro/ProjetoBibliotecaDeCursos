@@ -377,9 +377,9 @@ class UserService implements IUserService {
 		return DefaultReturns.success({ message: "Login successfully", body: returnData });
 	}
 
-	public async showUser(userId: string): Promise<IDefaultReturnsSuccess<IShowUserReturn>> {
+	public async getUserProfile(userId: string, isAdmin = false): Promise<IDefaultReturnsSuccess<IShowUserReturn>> {
 		const showUserCached = await this.redisRepository.getShowUserCache(userId);
-		if (showUserCached) {
+		if (showUserCached && !isAdmin) {
 			await this.logger.info({
 				entityId: userId,
 				title: "Show user successfully",
@@ -405,6 +405,7 @@ class UserService implements IUserService {
 		}
 
 		const returnData: IShowUserReturn = {
+			id: userWithThisId.id,
 			full_name: userWithThisId.first_name + " " + userWithThisId.last_name,
 			login: userWithThisId.login,
 			email: userWithThisId.email,
@@ -414,6 +415,7 @@ class UserService implements IUserService {
 			first_login: userWithThisId.report!.first_access,
 			last_login: userWithThisId.report!.last_access,
 			avatar_url: userWithThisId.avatar_url,
+			roles: isAdmin ? userWithThisId.roles : undefined,
 		};
 
 		await this.logger.info({
