@@ -8,8 +8,8 @@
 - [x] Autenticar o Usuário;
 - [x] Show do Usuario com Cache;
 - [x] Alterar Senha do Usuário;
-- [ ] Alterar Dados do usuario;
 - [x] Alterar Imagem do Usuario;
+- [ ] Alterar Dados do usuario;
 - [ ] Deletar Conta;
 
 - [x] Adicionar Middleware para `RateLimit`;
@@ -26,7 +26,7 @@
 - [x] Adicionar/Remover Roles adminstrativas para Usuarios;
 - [x] Middleware de Roles;
 - [x] Ver detalhes de Usuario;
-- [ ] Forçar logout Multiplo;
+- [x] Forçar logout Multiplo;
 - [ ] Listar Usuarios com Páginação e Filtros;
 - [ ] Bloquear Usuarios com opção de Mensagem personalizada;
 - [ ] Forçar usuario a resetar Login, Email e/ou Senha;
