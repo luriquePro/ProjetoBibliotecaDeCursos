@@ -24,7 +24,7 @@
 - [ ] Criar Migrate;
 
 - [x] Adicionar/Remover Roles adminstrativas para Usuarios;
-- [ ] Middleware de Roles;
+- [x] Middleware de Roles;
 - [ ] Ver detalhes de Usuario;
 - [ ] Listar Usuarios com Páginação e Filtros;
 - [ ] Bloquear Usuarios com opção de Mensagem personalizada;

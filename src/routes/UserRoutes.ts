@@ -3,6 +3,7 @@ import { UserController } from "../controllers/UserController.ts";
 import { IsAuthenticate } from "../middlewares/AuthenticateMiddleware.ts";
 import { isProtection } from "../middlewares/ProtectionMiddleware.ts";
 import { RateLimit } from "../middlewares/RateLimitMiddleware.ts";
+import { isAllowed } from "../middlewares/RolesMiddleware.ts";
 import { SetUserApm } from "../middlewares/SetUserApmMiddleware.ts";
 import { ConfiguresModel } from "../models/Configures.ts";
 import { client } from "../models/Redis.ts";
@@ -79,6 +80,7 @@ UserRoutes.post(
 	"/set-roles",
 	IsAuthenticate,
 	isProtection,
+	isAllowed(["admin"]),
 	SetUserApm,
 	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
 	userController.setRoles.bind(userController),
@@ -88,6 +90,7 @@ UserRoutes.post(
 	"/remove-roles",
 	IsAuthenticate,
 	isProtection,
+	isAllowed(["admin"]),
 	SetUserApm,
 	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
 	userController.removeRoles.bind(userController),
