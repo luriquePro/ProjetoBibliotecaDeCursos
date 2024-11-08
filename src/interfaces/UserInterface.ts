@@ -157,6 +157,7 @@ export interface IRemoveRole {
 }
 
 export interface IRemoveRoleReturn {}
+export interface ILogoutManyUsersReturn {}
 
 // Interface of Class UserValidations
 export interface IUserValidation {
@@ -180,10 +181,12 @@ export interface IUserService {
 	uploadAvatar(dataUploadAvatar: IUploadAvatar): Promise<IDefaultReturnsSuccess<IUploadAvatarReturn>>;
 	setRoles(dataSetRole: ISetRole): Promise<IDefaultReturnsSuccess<ISetRoleReturn>>;
 	removeRoles(dataSetRole: IRemoveRole): Promise<IDefaultReturnsSuccess<IRemoveRoleReturn>>;
+	logoutManyUsers(userIds: string[]): Promise<IDefaultReturnsSuccess<ILogoutManyUsersReturn>>;
 }
 
 // Interface of Class UserRepository
 export interface IUserRepository {
+	findByObj(filter: FilterQuery<IUserDTO>): Promise<IUserDTO[]>;
 	findOneByObj(filter: FilterQuery<IUserDTO>): Promise<IUserDTO | null>;
 	findUserByEmail(email: string): Promise<IUserDTO | null>;
 	findUserById(id: string): Promise<IUserDTO | null>;

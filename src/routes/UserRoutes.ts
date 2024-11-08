@@ -105,4 +105,13 @@ UserRoutes.get(
 	userController.getUserProfile.bind(userController),
 );
 
+UserRoutes.post(
+	"/logout",
+	IsAuthenticate,
+	isAllowed(["admin"]),
+	SetUserApm,
+	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
+	userController.logoutManyUsers.bind(userController),
+);
+
 export { UserRoutes };

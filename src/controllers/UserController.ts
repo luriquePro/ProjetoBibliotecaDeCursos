@@ -107,6 +107,12 @@ class UserController {
 		const result = await this.userService.getUserProfile(userId, isAdmin);
 		return response.json(result);
 	}
+
+	public async logoutManyUsers(request: Request, response: Response): Promise<Response> {
+		const userIds = request.body.user_ids;
+		const result = await this.userService.logoutManyUsers(userIds);
+		return response.json(result);
+	}
 }
 
 export { UserController };

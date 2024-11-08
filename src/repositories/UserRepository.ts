@@ -7,10 +7,14 @@ import { IUserMongo } from "../models/User.ts";
 class UserRepository implements IUserRepository {
 	constructor(private readonly userModel: Model<IUserMongo>) {}
 
+	@captureOperation("findMany", "Users")
+	public async findByObj(filter: FilterQuery<IUserDTO>): Promise<IUserDTO[]> {
+		return await this.userModel.find(filter).lean();
+	}
+
 	@captureOperation("findOne", "Users")
 	public async findOneByObj(filter: FilterQuery<IUserDTO>): Promise<IUserDTO | null> {
-		const result = await this.userModel.findOne(filter).lean();
-		return result;
+		return await this.userModel.findOne(filter).lean();
 	}
 
 	@captureOperation("findOne", "Users")

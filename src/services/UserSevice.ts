@@ -17,6 +17,7 @@ import {
 	IChangePasswordReturn,
 	IConfirmResetPassword,
 	IConfirmResetPasswordReturn,
+	ILogoutManyUsersReturn,
 	IRemoveRole,
 	IRemoveRoleReturn,
 	IRequestResetPassword,
@@ -663,6 +664,40 @@ class UserService implements IUserService {
 
 		await this.userRepository.updateUser({ id: userId }, { $set: { roles: rolesAfterRemoved } });
 		return DefaultReturns.success({ message: "Roles are successfully removed" });
+	}
+
+	public async logoutManyUsers(userIds: string[]): Promise<IDefaultReturnsSuccess<ILogoutManyUsersReturn>> {
+		if (!userIds || !userIds.length) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "Invalid user ids",
+				description: "Send a new request to remove role with an empty user ids",
+				objectData: { userIds },
+			});
+
+			throw new BadRequestError("Enter user ids");
+		}
+
+		const usersWithThisIds = await this.userRepository.findByObj({ id: { $in: userIds } });
+		if (usersWithThisIds.length !== userIds.length) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "Invalid user ids",
+				description: "Send a new request to remove role with an invalid user ids",
+				objectData: { userIds },
+			});
+
+			throw new BadRequestError("Enter a valid user ids");
+		}
+
+		const inactiveSessionsPromise = userIds.map(userId => this.sessionService.inactivateAllUserSessions(userId));
+		const revomeTokens = this.userRepository.updateUser({ id: { $in: userIds } }, { $unset: { current_token: true } });
+
+		await Promise.allSettled([...inactiveSessionsPromise, revomeTokens]);
+
+		return DefaultReturns.success({ message: "Logout successfully" });
 	}
 }
 
