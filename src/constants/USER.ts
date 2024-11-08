@@ -1,3 +1,5 @@
+import { Roles } from "../interfaces/UserInterface.ts";
+
 export enum USER_STATUS {
 	ACTIVE = "ACTIVE",
 	DELETED = "DELETED",
@@ -13,3 +15,5 @@ export enum SESSION_STATUS {
 export const ALLOWED_AVATAR_IMAGE_TYPES = ["jpg", "jpeg", "png"];
 
 export const MAX_AVATAR_IMAGE_SIZE = 100 * 1024;
+
+export const VALID_ROLES = ["admin", "user", "manager", "editor"] as Roles[];

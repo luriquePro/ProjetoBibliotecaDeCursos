@@ -3,6 +3,8 @@ import mongoose, { FilterQuery, UpdateQuery } from "mongoose";
 import { USER_STATUS } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "./AppInterface.ts";
 
+export type Roles = "user" | "admin" | "manager" | "editor";
+
 /* 
 	#Register
 */
@@ -41,6 +43,7 @@ export interface IUserDTO {
 	avatar?: string;
 	avatar_url?: string;
 	created_at: Date;
+	roles: Roles[];
 }
 
 export interface IUserReport {
@@ -52,7 +55,7 @@ export interface IUserReport {
 	total_courses_completed: number;
 }
 
-export interface IUserRegisterRepository extends Omit<IUserDTO, "created_at"> {}
+export interface IUserRegisterRepository extends Omit<Omit<IUserDTO, "created_at">, "roles"> {}
 
 // interface of Data that repository return
 export interface IUserRegisterRepositoryReturn extends IUserDTO {
@@ -113,6 +116,7 @@ export interface ITokenCreateDTO {
 export interface IAuthenticateReturn extends IGenerateTokenReturn {}
 
 export interface IShowUserReturn {
+	id: string;
 	full_name: string;
 	cpf: string;
 	email: string;
@@ -122,6 +126,7 @@ export interface IShowUserReturn {
 	first_login: Date;
 	last_login: Date;
 	avatar_url?: string;
+	roles?: Roles[];
 }
 
 export interface IChangePassword {
@@ -138,6 +143,21 @@ export interface IUploadAvatar {
 }
 
 export interface IUploadAvatarReturn {}
+
+export interface ISetRole {
+	userId: string;
+	roles: Roles[];
+}
+
+export interface ISetRoleReturn {}
+
+export interface IRemoveRole {
+	userId: string;
+	roles: Roles[];
+}
+
+export interface IRemoveRoleReturn {}
+export interface ILogoutManyUsersReturn {}
 
 // Interface of Class UserValidations
 export interface IUserValidation {
@@ -156,13 +176,17 @@ export interface IUserService {
 	requestResetPassword(dataRequestResetPassword: IRequestResetPassword): Promise<IDefaultReturnsSuccess<IUserRequestResetPasswordReturn>>;
 	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<IDefaultReturnsSuccess<IConfirmResetPasswordReturn>>;
 	authenticate(dataAuthenticate: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>>;
-	showUser(userId: string): Promise<IDefaultReturnsSuccess<IShowUserReturn>>;
+	getUserProfile(userId: string, isAdmin?: boolean): Promise<IDefaultReturnsSuccess<IShowUserReturn>>;
 	changePassword(dataChangePassword: IChangePassword): Promise<IDefaultReturnsSuccess<IChangePasswordReturn>>;
 	uploadAvatar(dataUploadAvatar: IUploadAvatar): Promise<IDefaultReturnsSuccess<IUploadAvatarReturn>>;
+	setRoles(dataSetRole: ISetRole): Promise<IDefaultReturnsSuccess<ISetRoleReturn>>;
+	removeRoles(dataSetRole: IRemoveRole): Promise<IDefaultReturnsSuccess<IRemoveRoleReturn>>;
+	logoutManyUsers(userIds: string[]): Promise<IDefaultReturnsSuccess<ILogoutManyUsersReturn>>;
 }
 
 // Interface of Class UserRepository
 export interface IUserRepository {
+	findByObj(filter: FilterQuery<IUserDTO>): Promise<IUserDTO[]>;
 	findOneByObj(filter: FilterQuery<IUserDTO>): Promise<IUserDTO | null>;
 	findUserByEmail(email: string): Promise<IUserDTO | null>;
 	findUserById(id: string): Promise<IUserDTO | null>;

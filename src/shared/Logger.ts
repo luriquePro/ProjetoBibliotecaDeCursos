@@ -7,11 +7,13 @@ import { elasticClient } from "./apm/ElasticCLient.ts";
 
 export class Logger {
 	private readonly entity: string;
+	private readonly loggerEnabled: boolean;
 	private logger: ElasticApmNode.Logger;
 
 	constructor(entity: string) {
 		this.entity = entity.toLowerCase();
 		this.logger = new ApmService().elasticLogger();
+		this.loggerEnabled = process.env.ENABLE_LOGS === "true";
 	}
 	private createLogData<T>(level: ILogLevels, data: ILogLevel<T>): IElasticDataLogger<T> {
 		return {
@@ -30,13 +32,15 @@ export class Logger {
 	private async log<T>(level: ILogLevels, data: ILogLevel<T>) {
 		const logData = this.createLogData(level, data);
 
-		this.logger[level](logData.description, logData);
+		if (this.loggerEnabled) {
+			this.logger[level](logData.description, logData);
 
-		await elasticClient.create({
-			id: logData.trace_id,
-			index: logData.entity,
-			body: logData,
-		});
+			await elasticClient.create({
+				id: logData.trace_id,
+				index: logData.entity,
+				body: logData,
+			});
+		}
 	}
 
 	public async debug<T>({ entityId, title, description, statusCode, objectData }: ILogLevel<T>) {

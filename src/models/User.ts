@@ -24,6 +24,7 @@ const UserSchema = new Schema<IUserMongo>(
 		},
 		current_token: { type: String, index: true },
 		avatar: { type: String, index: true },
+		roles: { type: [String], index: true, default: ["user"] },
 	},
 	{ timestamps: true },
 );

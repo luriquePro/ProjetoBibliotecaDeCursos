@@ -8,8 +8,8 @@
 - [x] Autenticar o Usuário;
 - [x] Show do Usuario com Cache;
 - [x] Alterar Senha do Usuário;
-- [ ] Alterar Dados do usuario;
 - [x] Alterar Imagem do Usuario;
+- [ ] Alterar Dados do usuario;
 - [ ] Deletar Conta;
 - [ ] Autenticação sem Senha;
 - [ ] Linkar servidor de Email com rabbitmq;
@@ -22,17 +22,18 @@
 - [x] Adicionar Middleware de `Autenticação`;
 
 - [x] Create para Configurações da Aplicação;
-- [ ] Proteger a rota com Autenticação Especifica;
+- [x] Proteger a rota com Autenticação Especifica;
 - [x] Criar Seed;
 - [ ] Criar Migrate;
 
-- [ ] Adicionar/Remover Roles adminstrativas para Usuarios;
-- [ ] Ver detalhes de Usuario;
+- [x] Adicionar/Remover Roles adminstrativas para Usuarios;
+- [x] Middleware de Roles;
+- [x] Ver detalhes de Usuario;
+- [x] Forçar logout Multiplo;
 - [ ] Listar Usuarios com Páginação e Filtros;
 - [ ] Bloquear Usuarios com opção de Mensagem personalizada;
 - [ ] Forçar usuario a resetar Login, Email e/ou Senha;
 - [ ] Alterar Dados Do Usuario;
-- [ ] Forçar logout Multiplo;
 - [ ] Conseguir enviar email com templates personalizadas;
 
 - [ ] Sistema de Notificações Internas
