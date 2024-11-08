@@ -9,7 +9,7 @@
 - [x] Show do Usuario com Cache;
 - [x] Alterar Senha do Usuário;
 - [ ] Alterar Dados do usuario;
-- [ ] Alterar Imagem do Usuario;
+- [x] Alterar Imagem do Usuario;
 - [ ] Deletar Conta;
 
 - [x] Adicionar Middleware para `RateLimit`;
@@ -19,11 +19,12 @@
 - [x] Adicionar Middleware de `Autenticação`;
 
 - [x] Create para Configurações da Aplicação;
-- [ ] Proteger a rota com Autenticação Especifica;
+- [x] Proteger a rota com Autenticação Especifica;
 - [x] Criar Seed;
 - [ ] Criar Migrate;
 
-- [ ] Adicionar/Remover Roles adminstrativas para Usuarios;
+- [x] Adicionar/Remover Roles adminstrativas para Usuarios;
+- [ ] Middleware de Roles;
 - [ ] Ver detalhes de Usuario;
 - [ ] Listar Usuarios com Páginação e Filtros;
 - [ ] Bloquear Usuarios com opção de Mensagem personalizada;

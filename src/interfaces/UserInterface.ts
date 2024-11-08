@@ -3,6 +3,8 @@ import mongoose, { FilterQuery, UpdateQuery } from "mongoose";
 import { USER_STATUS } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "./AppInterface.ts";
 
+export type Roles = "user" | "admin" | "manager" | "editor";
+
 /* 
 	#Register
 */
@@ -41,6 +43,7 @@ export interface IUserDTO {
 	avatar?: string;
 	avatar_url?: string;
 	created_at: Date;
+	roles: Roles[];
 }
 
 export interface IUserReport {
@@ -52,7 +55,7 @@ export interface IUserReport {
 	total_courses_completed: number;
 }
 
-export interface IUserRegisterRepository extends Omit<IUserDTO, "created_at"> {}
+export interface IUserRegisterRepository extends Omit<Omit<IUserDTO, "created_at">, "roles"> {}
 
 // interface of Data that repository return
 export interface IUserRegisterRepositoryReturn extends IUserDTO {
@@ -139,6 +142,20 @@ export interface IUploadAvatar {
 
 export interface IUploadAvatarReturn {}
 
+export interface ISetRole {
+	userId: string;
+	roles: Roles[];
+}
+
+export interface ISetRoleReturn {}
+
+export interface IRemoveRole {
+	userId: string;
+	roles: Roles[];
+}
+
+export interface IRemoveRoleReturn {}
+
 // Interface of Class UserValidations
 export interface IUserValidation {
 	registerUser(dataValidation: IUserRegisterDTO): Promise<void>;
@@ -159,6 +176,8 @@ export interface IUserService {
 	showUser(userId: string): Promise<IDefaultReturnsSuccess<IShowUserReturn>>;
 	changePassword(dataChangePassword: IChangePassword): Promise<IDefaultReturnsSuccess<IChangePasswordReturn>>;
 	uploadAvatar(dataUploadAvatar: IUploadAvatar): Promise<IDefaultReturnsSuccess<IUploadAvatarReturn>>;
+	setRoles(dataSetRole: ISetRole): Promise<IDefaultReturnsSuccess<ISetRoleReturn>>;
+	removeRoles(dataSetRole: IRemoveRole): Promise<IDefaultReturnsSuccess<IRemoveRoleReturn>>;
 }
 
 // Interface of Class UserRepository

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controllers/UserController.ts";
 import { IsAuthenticate } from "../middlewares/AuthenticateMiddleware.ts";
+import { isProtection } from "../middlewares/ProtectionMiddleware.ts";
 import { RateLimit } from "../middlewares/RateLimitMiddleware.ts";
 import { SetUserApm } from "../middlewares/SetUserApmMiddleware.ts";
 import { ConfiguresModel } from "../models/Configures.ts";
@@ -72,6 +73,24 @@ UserRoutes.post(
 	SetUserApm,
 	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
 	userController.uploadAvatar.bind(userController),
+);
+
+UserRoutes.post(
+	"/set-roles",
+	IsAuthenticate,
+	isProtection,
+	SetUserApm,
+	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
+	userController.setRoles.bind(userController),
+);
+
+UserRoutes.post(
+	"/remove-roles",
+	IsAuthenticate,
+	isProtection,
+	SetUserApm,
+	RateLimit({ limitRequestPerTime: 3, timeLimitInSeconds: 1 }),
+	userController.removeRoles.bind(userController),
 );
 
 export { UserRoutes };

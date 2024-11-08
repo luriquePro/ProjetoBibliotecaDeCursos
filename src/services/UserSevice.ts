@@ -5,7 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
 
-import { ALLOWED_AVATAR_IMAGE_TYPES, USER_STATUS } from "../constants/USER.ts";
+import { ALLOWED_AVATAR_IMAGE_TYPES, USER_STATUS, VALID_ROLES } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "../interfaces/AppInterface.ts";
 import { IConfiguresService } from "../interfaces/ConfigureInterface.ts";
 import { IRedisRepository } from "../interfaces/RedisRepository.ts";
@@ -17,8 +17,12 @@ import {
 	IChangePasswordReturn,
 	IConfirmResetPassword,
 	IConfirmResetPasswordReturn,
+	IRemoveRole,
+	IRemoveRoleReturn,
 	IRequestResetPassword,
 	IResetPasswordCode,
+	ISetRole,
+	ISetRoleReturn,
 	IShowUserReturn,
 	IUploadAvatar,
 	IUploadAvatarReturn,
@@ -544,6 +548,119 @@ class UserService implements IUserService {
 		await this.redisRepository.delShowUserCache(userId);
 
 		return DefaultReturns.success({ message: "Upload avatar successfully" });
+	}
+
+	public async setRoles({ userId, roles }: ISetRole): Promise<IDefaultReturnsSuccess<ISetRoleReturn>> {
+		if (!roles || !roles.length) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "Invalid roles",
+				description: "Send a new request to set role with an empty roles",
+				objectData: { userId, roles },
+			});
+
+			throw new BadRequestError("Enter roles");
+		}
+
+		const hasInvalidRoles = roles.some(role => !VALID_ROLES.includes(role));
+		if (hasInvalidRoles) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "Invalid roles",
+				description: "Send a new request to set role with an invalid roles",
+				objectData: { userId, roles },
+			});
+
+			throw new BadRequestError("Enter a valid roles");
+		}
+
+		const userWithThisId = await this.userRepository.findUserById(userId);
+		if (!userWithThisId) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "User with this id does not Exists",
+				description: "Send a new request to set role with an invalid user",
+				objectData: { userId },
+			});
+
+			throw new NotFoundError("User does not Exists");
+		}
+
+		const noUsedRoles = roles.filter(role => !userWithThisId.roles.includes(role));
+		if (!noUsedRoles.length) {
+			await this.logger.error({
+				entityId: userWithThisId.id,
+				statusCode: 400,
+				title: "Invalid roles",
+				description: "Send a new request to set role with an invalid roles",
+				objectData: { userId, roles },
+			});
+
+			throw new BadRequestError("Enter a valid roles");
+		}
+
+		await this.userRepository.updateUser({ id: userId }, { $set: { roles: [...userWithThisId.roles, ...noUsedRoles] } });
+
+		return DefaultReturns.success({ message: "Set roles successfully" });
+	}
+
+	public async removeRoles({ userId, roles }: IRemoveRole): Promise<IDefaultReturnsSuccess<IRemoveRoleReturn>> {
+		if (!roles || !roles.length) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "Invalid roles",
+				description: "Send a new request to remove role with an empty roles",
+				objectData: { userId, roles },
+			});
+
+			throw new BadRequestError("Enter roles");
+		}
+
+		const userWithThisId = await this.userRepository.findUserById(userId);
+		if (!userWithThisId) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "User with this id does not Exists",
+				description: "Send a new request to remove role with an invalid user",
+				objectData: { userId },
+			});
+
+			throw new NotFoundError("User does not Exists");
+		}
+
+		const hasInvalidRoles = roles.some(role => !userWithThisId.roles.includes(role));
+		if (hasInvalidRoles) {
+			await this.logger.error({
+				entityId: userWithThisId.id,
+				statusCode: 400,
+				title: "Invalid roles",
+				description: "Send a new request to remove role with an invalid roles",
+				objectData: { userId, roles },
+			});
+
+			throw new BadRequestError("Enter a valid roles");
+		}
+
+		const rolesAfterRemoved = userWithThisId.roles.filter(userRole => !roles.includes(userRole));
+		if (!rolesAfterRemoved.length) {
+			await this.logger.error({
+				entityId: userWithThisId.id,
+				statusCode: 400,
+				title: "Invalid roles",
+				description: "Send a new request to remove role with an invalid roles",
+				objectData: { userId, roles },
+			});
+
+			throw new BadRequestError("Enter a valid roles");
+		}
+
+		await this.userRepository.updateUser({ id: userId }, { $set: { roles: rolesAfterRemoved } });
+		return DefaultReturns.success({ message: "Roles are successfully removed" });
 	}
 }
 

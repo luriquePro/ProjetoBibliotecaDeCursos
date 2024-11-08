@@ -9,6 +9,7 @@ import {
 	IUploadAvatar,
 	IUserRegisterDTO,
 	IUserService,
+	Roles,
 } from "../interfaces/UserInterface.ts";
 
 class UserController {
@@ -84,6 +85,20 @@ class UserController {
 			const result = await this.userService.uploadAvatar(dataUpload as IUploadAvatar);
 			return response.json(result);
 		});
+	}
+
+	public async setRoles(request: Request, response: Response): Promise<Response> {
+		const userId = request.user!.id;
+		const roles = request.body.roles as Roles[];
+		const result = await this.userService.setRoles({ userId, roles });
+		return response.json(result);
+	}
+
+	public async removeRoles(request: Request, response: Response): Promise<Response> {
+		const userId = request.user!.id;
+		const roles = request.body.roles as Roles[];
+		const result = await this.userService.removeRoles({ userId, roles });
+		return response.json(result);
 	}
 }
 
