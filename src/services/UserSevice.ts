@@ -115,6 +115,42 @@ class UserService implements IUserService {
 			throw new BadRequestError("User already exists with this login");
 		}
 
+		// Check if cpf was a old deleted user
+		const deletedUserWithThisCPF = await this.userRepository.findOneByObj({
+			deletion_info: { $exists: true },
+			"deletion_info.old_cpf": cpf,
+			status: USER_STATUS.DELETED,
+		});
+
+		if (deletedUserWithThisCPF) {
+			if (deletedUserWithThisCPF.deletion_info?.deletion_method === DELETION_METHOD.BACKOFFICE) {
+				await this.logger.error({
+					entityId: deletedUserWithThisCPF.id,
+					statusCode: 400,
+					title: "Try to recreate account after deletion by BACKOFFICE",
+					description: "Send a new request to register a new user after deletion by BACKOFFICE",
+				});
+
+				throw new BadRequestError(
+					deletedUserWithThisCPF.deletion_info.reason ??
+						"Your account has been disabled by an administrator, please contact support for more details.",
+				);
+			}
+
+			if (moment.utc().isBefore(moment.utc(deletedUserWithThisCPF.deletion_info?.recreation_available_at))) {
+				await this.logger.error({
+					entityId: deletedUserWithThisCPF.id,
+					statusCode: 400,
+					title: "Attempt to recreate the account before the available recreate date",
+					description: "Send a new request to register a new user after deletion before the available recreate date",
+				});
+
+				throw new BadRequestError(
+					`Your account was deleted at ${moment(deletedUserWithThisCPF.deletion_info?.deleted_at).format("DD/MM/YYYY HH:mm:ss")}, please wait until available recreate date: ${moment(deletedUserWithThisCPF.deletion_info?.recreation_available_at).format("DD/MM/YYYY HH:mm:ss")}`,
+				);
+			}
+		}
+
 		// Hash password
 		const hashedPassword = HashPassword(password);
 
@@ -133,6 +169,30 @@ class UserService implements IUserService {
 			login,
 			status: USER_STATUS.ACTIVE,
 		};
+
+		if (deletedUserWithThisCPF) {
+			userCreate.old_account = {
+				id: deletedUserWithThisCPF.id,
+				cpf: deletedUserWithThisCPF.deletion_info!.old_cpf,
+				email: deletedUserWithThisCPF.deletion_info!.old_email,
+				login: deletedUserWithThisCPF.deletion_info!.old_login,
+			};
+
+			await this.userRepository.updateUser(
+				{ id: deletedUserWithThisCPF.id },
+				{
+					$set: {
+						new_account: {
+							id: userCreate.id,
+							cpf: userCreate.cpf,
+							email: userCreate.email,
+							login: userCreate.login,
+							create_at: moment().utc().toDate(),
+						},
+					},
+				},
+			);
+		}
 
 		// Save User
 		const result = await this.userRepository.createUser(userCreate);

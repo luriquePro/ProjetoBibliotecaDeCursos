@@ -13,6 +13,22 @@ export interface IUserDeletion {
 	old_login: string;
 	old_email: string;
 	old_cpf: string;
+	reason?: string;
+}
+
+export interface IUserOldAccount {
+	id: string;
+	login: string;
+	email: string;
+	cpf: string;
+}
+
+export interface IUserNewAccount {
+	id: string;
+	login: string;
+	email: string;
+	cpf: string;
+	created_at: Date;
 }
 
 /* 
@@ -55,6 +71,8 @@ export interface IUserDTO {
 	created_at: Date;
 	roles: Roles[];
 	deletion_info?: IUserDeletion;
+	old_account?: IUserOldAccount;
+	new_account?: IUserNewAccount;
 }
 
 export interface IUserReport {
