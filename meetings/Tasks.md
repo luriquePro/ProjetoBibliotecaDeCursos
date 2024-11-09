@@ -11,10 +11,10 @@
 - [x] Alterar Imagem do Usuario;
 - [x] Opção de Manter-me conectado
 - [x] Refatorar Autenticação e Registrar
-- [ ] Alterar Dados do usuario;
 - [ ] Deletar Conta;
-- [ ] Autenticar sem Senha
-- [ ] Registrar com confirmação de Email
+- [ ] Alterar Dados do usuario;
+- [ ] Autenticar sem Senha;
+- [ ] Registrar com confirmação de Email;
 
 - [x] Adicionar Middleware para `RateLimit`;
 - [x] Criar função padrão para retorno de Erros;

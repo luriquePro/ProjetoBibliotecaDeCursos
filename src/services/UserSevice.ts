@@ -17,6 +17,7 @@ import {
 	IChangePasswordReturn,
 	IConfirmResetPassword,
 	IConfirmResetPasswordReturn,
+	IDeleteAccountCode,
 	IGenerateTokenReturn,
 	IGetSessionAndGenerateToken,
 	IGetSessionAndGenerateTokenReturn,
@@ -35,6 +36,7 @@ import {
 	IUserRegisterReturn,
 	IUserReport,
 	IUserRepository,
+	IUserRequestDeleteAccountReturn,
 	IUserRequestResetPasswordReturn,
 	IUserService,
 	IUserValidation,
@@ -175,6 +177,8 @@ class UserService implements IUserService {
 			throw new BadRequestError("This email is not being used, please enter a valid email address");
 		}
 
+		const passwordResetCodeExpirationMinutes = await this.configuresService.getConfigure("password_reset_code_expiration_time_in_minutes");
+
 		// Check if user is active
 		if (userWithEmailExists.status !== USER_STATUS.ACTIVE) {
 			await this.logger.error({
@@ -197,7 +201,9 @@ class UserService implements IUserService {
 				description: "Send a new request to reset the password with a code already being used",
 			});
 
-			throw new BadRequestError("You already have a reset code, please check your email");
+			throw new BadRequestError(
+				`You already have a reset code, please check your email or try again in ${moment.utc(resetCodeExists.limit_datetime).fromNow()}`,
+			);
 		}
 
 		// Generate a reset password code
@@ -208,14 +214,17 @@ class UserService implements IUserService {
 			user_id: userWithEmailExists.id,
 			email: emailRequester,
 			code: resetPasswordCode,
-			limit_datetime: moment().utc().add(5, "minutes").toISOString(),
+			limit_datetime: moment().utc().add(Number(passwordResetCodeExpirationMinutes), "minutes").toISOString(),
 		};
 
 		// Save reset password code
-		await this.redisRepository.saveResetPasswordCode(resetCode, 5 * 60);
+		await this.redisRepository.saveResetPasswordCode(resetCode, Number(passwordResetCodeExpirationMinutes) * 60);
 
 		// Data Return to Client
-		const returnData: IUserRequestResetPasswordReturn = { reset_code: resetCode.code };
+		const returnData: IUserRequestResetPasswordReturn = {
+			reset_code: resetCode.code,
+			expire_code_in_seconds: Number(passwordResetCodeExpirationMinutes) * 60,
+		};
 
 		await this.logger.info({
 			entityId: userWithEmailExists.id,
@@ -688,6 +697,79 @@ class UserService implements IUserService {
 		await Promise.allSettled([...inactiveSessionsPromise, revomeTokens]);
 
 		return DefaultReturns.success({ message: "Logout successfully" });
+	}
+
+	public async requestDeleteAccount(userId: string): Promise<IDefaultReturnsSuccess<IUserRequestDeleteAccountReturn>> {
+		// Check if email exists
+		const userWithThisId = await this.userRepository.findUserById(userId);
+		if (!userWithThisId) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "This email is not being used",
+				description: "Send a new request to reset the password with email not being used",
+			});
+
+			throw new BadRequestError("This email is not being used, please enter a valid email address");
+		}
+
+		const deleteAccountCodeExpirationMinutes = await this.configuresService.getConfigure("delete_account_code_expiration_time_in_minutes");
+
+		// Check if user is active
+		if (userWithThisId.status !== USER_STATUS.ACTIVE) {
+			await this.logger.error({
+				entityId: userWithThisId.id,
+				statusCode: 400,
+				title: "This user is not active",
+				description: "Send a new request to reset the password with an inactive user",
+			});
+
+			throw new BadRequestError("This user is not active, please contact your administrator");
+		}
+
+		// Check if user just have a code
+		const deleteAccountCodeExists = await this.redisRepository.getDeleteAccountCode(userId);
+		if (deleteAccountCodeExists) {
+			await this.logger.error({
+				entityId: userWithThisId.id,
+				statusCode: 400,
+				title: "You already have a reset code",
+				description: "Send a new request to reset the password with a code already being used",
+			});
+
+			throw new BadRequestError(
+				`You already have a delete account code, please check your email or try again in ${moment.utc(deleteAccountCodeExists.limit_datetime).fromNow()}`,
+			);
+		}
+
+		// Generate a reset password code
+		const deleteAccountCode = IdGenerate();
+
+		// Create a resetCode object
+		const deleteCodeObject: IDeleteAccountCode = {
+			user_id: userWithThisId.id,
+			code: deleteAccountCode,
+			limit_datetime: moment().utc().add(Number(deleteAccountCodeExpirationMinutes), "minutes").toISOString(),
+		};
+
+		// Save reset password code
+		await this.redisRepository.saveDeleteAccountCode(deleteCodeObject, Number(deleteAccountCodeExpirationMinutes) * 60);
+
+		// Data Return to Client
+		const returnData: IUserRequestDeleteAccountReturn = {
+			delete_account_code: deleteCodeObject.code,
+			expire_code_in_seconds: Number(deleteAccountCodeExpirationMinutes) * 60,
+		};
+
+		await this.logger.info({
+			entityId: userWithThisId.id,
+			title: "Reset code sent successfully",
+			description: `Reset code sent successfully to ${userWithThisId.login}`,
+			statusCode: 200,
+			objectData: returnData,
+		});
+
+		return DefaultReturns.success({ message: "Reset code sent successfully", body: returnData });
 	}
 
 	private async getUserSessionsAndGenerateToken({ user, keepLoggedIn }: IGetSessionAndGenerateToken): Promise<IGetSessionAndGenerateTokenReturn> {

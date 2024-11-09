@@ -83,6 +83,7 @@ export interface IResetPasswordCode {
 
 export interface IUserRequestResetPasswordReturn {
 	reset_code: string;
+	expire_code_in_seconds: number;
 }
 
 export interface IConfirmResetPassword {
@@ -173,6 +174,16 @@ export interface IGetSessionAndGenerateToken {
 }
 
 export interface IGetSessionAndGenerateTokenReturn extends IGenerateTokenReturn {}
+export interface IUserRequestDeleteAccountReturn {
+	delete_account_code: string;
+	expire_code_in_seconds: number;
+}
+
+export interface IDeleteAccountCode {
+	code: string;
+	limit_datetime: string;
+	user_id: string;
+}
 
 // Interface of Class UserValidations
 export interface IUserValidation {
@@ -197,6 +208,7 @@ export interface IUserService {
 	setRoles(dataSetRole: ISetRole): Promise<IDefaultReturnsSuccess<ISetRoleReturn>>;
 	removeRoles(dataSetRole: IRemoveRole): Promise<IDefaultReturnsSuccess<IRemoveRoleReturn>>;
 	logoutManyUsers(userIds: string[]): Promise<IDefaultReturnsSuccess<ILogoutManyUsersReturn>>;
+	requestDeleteAccount(userId: string): Promise<IDefaultReturnsSuccess<IUserRequestDeleteAccountReturn>>;
 }
 
 // Interface of Class UserRepository

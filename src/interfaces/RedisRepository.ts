@@ -1,5 +1,5 @@
 import { IRequestCounter } from "./AppInterface.ts";
-import { IResetPasswordCode, IShowUserReturn } from "./UserInterface.ts";
+import { IDeleteAccountCode, IResetPasswordCode, IShowUserReturn } from "./UserInterface.ts";
 
 export interface IRedisRepository {
 	saveRequestCounter(key: string, requestCounter: IRequestCounter, timeEXP: number): Promise<void>;
@@ -9,4 +9,6 @@ export interface IRedisRepository {
 	saveShowUserCache(userId: string, dataShow: IShowUserReturn): Promise<void>;
 	getShowUserCache(userId: string): Promise<IShowUserReturn | null>;
 	delShowUserCache(userId: string): Promise<void>;
+	saveDeleteAccountCode(deleteAccountCode: IDeleteAccountCode, timeEXP: number): Promise<void>;
+	getDeleteAccountCode(deleteAccountCode: string): Promise<IDeleteAccountCode | null>;
 }

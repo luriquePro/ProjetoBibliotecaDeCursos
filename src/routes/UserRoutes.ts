@@ -76,6 +76,16 @@ UserRoutes.post(
 	userController.uploadAvatar.bind(userController),
 );
 
+UserRoutes.get(
+	"/request-delete-account",
+	IsAuthenticate,
+	SetUserApm,
+	RateLimit({ limitRequestPerTime: 5, timeLimitInSeconds: 30 }),
+	userController.requestDeleteAccount.bind(userController),
+);
+
+// Administrativo
+
 UserRoutes.post(
 	"/set-roles/:userId",
 	IsAuthenticate,
