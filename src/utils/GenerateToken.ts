@@ -1,10 +1,9 @@
 import jwt from "jsonwebtoken";
 
 import { SESSION_DURATION_MAX_TIME_IN_MINUTES, SESSION_DURATION_TIME_IN_MINUTES } from "../constants/GLOBAL.ts";
-import { ISessionDTO } from "../interfaces/SessionInterface.ts";
-import { IGenerateTokenReturn, ITokenCreateDTO, IUserDTO } from "../interfaces/UserInterface.ts";
+import { IGenerateToken, IGenerateTokenReturn, ITokenCreateDTO } from "../interfaces/UserInterface.ts";
 
-const GenerateToken = (user: IUserDTO, session: ISessionDTO, keepLoggedIn: boolean): IGenerateTokenReturn => {
+const GenerateToken = ({ user, session, keepLoggedIn }: IGenerateToken): IGenerateTokenReturn => {
 	const dataToken: ITokenCreateDTO = {
 		sessionId: session.id,
 		userId: user.id,
@@ -14,8 +13,6 @@ const GenerateToken = (user: IUserDTO, session: ISessionDTO, keepLoggedIn: boole
 	const token = jwt.sign(dataToken, process.env.JWT_SECRET_KEY!, {
 		expiresIn: `${keepLoggedIn ? SESSION_DURATION_MAX_TIME_IN_MINUTES : SESSION_DURATION_TIME_IN_MINUTES}m`,
 	});
-
-	console.log(`${keepLoggedIn ? SESSION_DURATION_MAX_TIME_IN_MINUTES : SESSION_DURATION_TIME_IN_MINUTES}m`);
 
 	const result: IGenerateTokenReturn = {
 		token: token,

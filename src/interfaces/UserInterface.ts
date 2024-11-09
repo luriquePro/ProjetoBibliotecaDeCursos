@@ -2,6 +2,7 @@ import { File } from "formidable";
 import mongoose, { FilterQuery, UpdateQuery } from "mongoose";
 import { USER_STATUS } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "./AppInterface.ts";
+import { ISessionDTO } from "./SessionInterface.ts";
 
 export type Roles = "user" | "admin" | "manager" | "editor";
 
@@ -99,6 +100,12 @@ export interface IAuthenticate {
 	keepLoggedIn: boolean;
 }
 
+export interface IGenerateToken {
+	user: IUserDTO;
+	session: ISessionDTO;
+	keepLoggedIn: boolean;
+}
+
 export interface IGenerateTokenReturn {
 	token: string;
 	name: string;
@@ -159,6 +166,13 @@ export interface IRemoveRole {
 
 export interface IRemoveRoleReturn {}
 export interface ILogoutManyUsersReturn {}
+
+export interface IGetSessionAndGenerateToken {
+	user: IUserDTO;
+	keepLoggedIn: boolean;
+}
+
+export interface IGetSessionAndGenerateTokenReturn extends IGenerateTokenReturn {}
 
 // Interface of Class UserValidations
 export interface IUserValidation {
