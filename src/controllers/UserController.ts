@@ -119,6 +119,13 @@ class UserController {
 		const result = await this.userService.requestDeleteAccount(userId);
 		return response.json(result);
 	}
+
+	public async deleteAccountByPassword(request: Request, response: Response): Promise<Response> {
+		const userId = request.user!.id;
+		const password = request.body.password;
+		const result = await this.userService.deleteAccountByPassword({ userId, password });
+		return response.json(result);
+	}
 }
 
 export { UserController };

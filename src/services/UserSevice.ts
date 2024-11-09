@@ -5,7 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
 
-import { ALLOWED_AVATAR_IMAGE_TYPES, USER_STATUS, VALID_ROLES } from "../constants/USER.ts";
+import { ALLOWED_AVATAR_IMAGE_TYPES, DELETION_METHOD, USER_STATUS, VALID_ROLES } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "../interfaces/AppInterface.ts";
 import { IConfiguresService } from "../interfaces/ConfigureInterface.ts";
 import { IRedisRepository } from "../interfaces/RedisRepository.ts";
@@ -17,6 +17,8 @@ import {
 	IChangePasswordReturn,
 	IConfirmResetPassword,
 	IConfirmResetPasswordReturn,
+	IDeleteAccountByPassword,
+	IDeleteAccountByPasswordReturn,
 	IDeleteAccountCode,
 	IGenerateTokenReturn,
 	IGetSessionAndGenerateToken,
@@ -31,6 +33,7 @@ import {
 	IShowUserReturn,
 	IUploadAvatar,
 	IUploadAvatarReturn,
+	IUserDeletion,
 	IUserRegisterDTO,
 	IUserRegisterRepository,
 	IUserRegisterReturn,
@@ -707,10 +710,10 @@ class UserService implements IUserService {
 				entityId: "NE",
 				statusCode: 400,
 				title: "This email is not being used",
-				description: "Send a new request to reset the password with email not being used",
+				description: "Send a new request to request delete account with no user",
 			});
 
-			throw new BadRequestError("This email is not being used, please enter a valid email address");
+			throw new NotFoundError("User does not Exists");
 		}
 
 		const deleteAccountCodeExpirationMinutes = await this.configuresService.getConfigure("delete_account_code_expiration_time_in_minutes");
@@ -721,7 +724,7 @@ class UserService implements IUserService {
 				entityId: userWithThisId.id,
 				statusCode: 400,
 				title: "This user is not active",
-				description: "Send a new request to reset the password with an inactive user",
+				description: "Send a new request to delete account with an inactive user",
 			});
 
 			throw new BadRequestError("This user is not active, please contact your administrator");
@@ -734,7 +737,7 @@ class UserService implements IUserService {
 				entityId: userWithThisId.id,
 				statusCode: 400,
 				title: "You already have a reset code",
-				description: "Send a new request to reset the password with a code already being used",
+				description: "Send a new request to delete account with a code already being used",
 			});
 
 			throw new BadRequestError(
@@ -770,6 +773,86 @@ class UserService implements IUserService {
 		});
 
 		return DefaultReturns.success({ message: "Reset code sent successfully", body: returnData });
+	}
+
+	public async deleteAccountByPassword({
+		password,
+		userId,
+	}: IDeleteAccountByPassword): Promise<IDefaultReturnsSuccess<IDeleteAccountByPasswordReturn>> {
+		await this.userValidations.deleteAccountByPassword({ password, userId });
+
+		const userWithThisId = await this.userRepository.findUserById(userId);
+		if (!userWithThisId) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "This email is not being used",
+				description: "Send a new request to delete account by password with user not exists",
+			});
+
+			throw new NotFoundError("User does not Exists");
+		}
+
+		// Check if this password is correct
+		const hashedPassword = HashPassword(password);
+		const userWithThisIdAndPassword = await this.userRepository.findOneByObj({ id: userWithThisId.id, password: hashedPassword });
+
+		if (!userWithThisIdAndPassword) {
+			await this.logger.error({
+				entityId: userWithThisId.id,
+				statusCode: 400,
+				title: "Invalid password",
+				description: "Send a new request to delete account by password with an invalid password",
+			});
+
+			throw new BadRequestError("Enter a valid password");
+		}
+
+		const accountRecreationWaitTimeInHours = await this.configuresService.getConfigure("account_recreation_wait_time_in_hours");
+
+		const deleteInfo: IUserDeletion = {
+			deleted_at: moment().utc().toDate(),
+			deletion_method: DELETION_METHOD.PASSWORD,
+			old_cpf: userWithThisIdAndPassword.cpf,
+			old_email: userWithThisIdAndPassword.email,
+			old_login: userWithThisIdAndPassword.login,
+			recreation_available_at: moment().utc().add(Number(accountRecreationWaitTimeInHours), "hours").toDate(),
+		};
+
+		await this.userRepository.updateUser(
+			{
+				id: userWithThisId.id,
+			},
+			{
+				$set: {
+					deletion_info: deleteInfo,
+					status: USER_STATUS.DELETED,
+					cpf: userWithThisIdAndPassword.cpf + "_" + userWithThisIdAndPassword.id,
+					email: userWithThisIdAndPassword.email + "_" + userWithThisIdAndPassword.id,
+					login: userWithThisIdAndPassword.login + "_" + userWithThisIdAndPassword.id,
+				},
+				$unset: { avatar: 1, password: 1 },
+			},
+		);
+
+		await this.sessionService.inactivateAllUserSessions(userWithThisIdAndPassword.id);
+
+		if (userWithThisIdAndPassword.avatar) {
+			const __DIRNAME = path.dirname(fileURLToPath(import.meta.url));
+			const pathOldAvatar = path.join(__DIRNAME, "..", "tmp", userWithThisIdAndPassword.avatar);
+			const unlinkFileAsync = promisify(fs.unlink);
+			await unlinkFileAsync(pathOldAvatar);
+		}
+
+		await this.logger.info({
+			entityId: userWithThisId.id,
+			title: "Delete account by password successfully",
+			description: `Delete account by password successfully to ${userWithThisId.login}`,
+			statusCode: 200,
+			objectData: deleteInfo,
+		});
+
+		return DefaultReturns.success({ message: "Delete account by password successfully", body: { logout: true } });
 	}
 
 	private async getUserSessionsAndGenerateToken({ user, keepLoggedIn }: IGetSessionAndGenerateToken): Promise<IGetSessionAndGenerateTokenReturn> {

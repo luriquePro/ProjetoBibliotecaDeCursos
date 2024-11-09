@@ -1,6 +1,13 @@
 import moment from "moment";
 import * as yup from "yup";
-import { IAuthenticate, IChangePassword, IConfirmResetPassword, IUserRegisterDTO, IUserValidation } from "../interfaces/UserInterface.ts";
+import {
+	IAuthenticate,
+	IChangePassword,
+	IConfirmResetPassword,
+	IDeleteAccountByPassword,
+	IUserRegisterDTO,
+	IUserValidation,
+} from "../interfaces/UserInterface.ts";
 import { CpfValidator } from "../utils/CpfValidator.ts";
 import { YupValidator } from "../utils/YupValidator.ts";
 
@@ -178,6 +185,33 @@ class UserValidations implements IUserValidation {
 					return !!value && numberRegex.test(value);
 				})
 				.test("old-password-must-contain-at-least-one-special-character", "Old Password must contain at least one special character", value => {
+					const specialCharacterRegex = /[^A-Za-z0-9]/;
+					return !!value && specialCharacterRegex.test(value);
+				}),
+		};
+
+		await YupValidator(shapeValidation, dataValidation, "user");
+	}
+
+	public async deleteAccountByPassword({ password, userId }: IDeleteAccountByPassword): Promise<void> {
+		const dataValidation = { password, userId };
+
+		const shapeValidation = {
+			userId: yup.string().required("Id is a required field"),
+			password: yup
+				.string()
+				.required("New Password is a required field")
+				.min(8, "New Password must contain at least 8 characters")
+				.max(16, "The New password can only contain up to 16 characters")
+				.test("new-password-must-contain-at-least-one-letter", "New Password must contain at least one letter", value => {
+					const letterRegex = /[A-Za-z]/;
+					return !!value && letterRegex.test(value);
+				})
+				.test("new-password-must-contain-at-least-one-number", "New Password must contain at least one number", value => {
+					const numberRegex = /[0-9]/;
+					return !!value && numberRegex.test(value);
+				})
+				.test("new-password-must-contain-at-least-one-special-character", "New Password must contain at least one special character", value => {
 					const specialCharacterRegex = /[^A-Za-z0-9]/;
 					return !!value && specialCharacterRegex.test(value);
 				}),

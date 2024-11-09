@@ -1,10 +1,19 @@
 import { File } from "formidable";
 import mongoose, { FilterQuery, UpdateQuery } from "mongoose";
-import { USER_STATUS } from "../constants/USER.ts";
+import { DELETION_METHOD, USER_STATUS } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "./AppInterface.ts";
 import { ISessionDTO } from "./SessionInterface.ts";
 
 export type Roles = "user" | "admin" | "manager" | "editor";
+
+export interface IUserDeletion {
+	deleted_at: Date;
+	recreation_available_at: Date;
+	deletion_method: DELETION_METHOD;
+	old_login: string;
+	old_email: string;
+	old_cpf: string;
+}
 
 /* 
 	#Register
@@ -45,6 +54,7 @@ export interface IUserDTO {
 	avatar_url?: string;
 	created_at: Date;
 	roles: Roles[];
+	deletion_info?: IUserDeletion;
 }
 
 export interface IUserReport {
@@ -185,6 +195,13 @@ export interface IDeleteAccountCode {
 	user_id: string;
 }
 
+export interface IDeleteAccountByPassword {
+	userId: string;
+	password: string;
+}
+
+export interface IDeleteAccountByPasswordReturn {}
+
 // Interface of Class UserValidations
 export interface IUserValidation {
 	registerUser(dataValidation: IUserRegisterDTO): Promise<void>;
@@ -192,6 +209,7 @@ export interface IUserValidation {
 	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<void>;
 	authenticate(dataAuthenticate: IAuthenticate): Promise<void>;
 	changePassword(dataChangePassword: IChangePassword): Promise<void>;
+	deleteAccountByPassword(dataDeleteAccountByPassword: IDeleteAccountByPassword): Promise<void>;
 }
 
 // Interface of Class UserService
@@ -209,6 +227,7 @@ export interface IUserService {
 	removeRoles(dataSetRole: IRemoveRole): Promise<IDefaultReturnsSuccess<IRemoveRoleReturn>>;
 	logoutManyUsers(userIds: string[]): Promise<IDefaultReturnsSuccess<ILogoutManyUsersReturn>>;
 	requestDeleteAccount(userId: string): Promise<IDefaultReturnsSuccess<IUserRequestDeleteAccountReturn>>;
+	deleteAccountByPassword(dataDeleteAccountByPassword: IDeleteAccountByPassword): Promise<IDefaultReturnsSuccess<IDeleteAccountByPasswordReturn>>;
 }
 
 // Interface of Class UserRepository
