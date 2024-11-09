@@ -11,8 +11,8 @@
 - [x] Alterar Imagem do Usuario;
 - [x] Opção de Manter-me conectado
 - [x] Refatorar Autenticação e Registrar
+- [x] Deletar Conta usando Senha;
 - [ ] Deletar Conta usando Email (Requet e Confirm);
-- [ ] Deletar Conta usando Senha;
 - [ ] Alterar Dados do usuario;
 - [ ] Autenticar sem Senha;
 - [ ] Registrar com confirmação de Email;
