@@ -96,6 +96,7 @@ export interface IConfirmResetPasswordReturn {
 export interface IAuthenticate {
 	login: string;
 	password: string;
+	keepLoggedIn: boolean;
 }
 
 export interface IGenerateTokenReturn {

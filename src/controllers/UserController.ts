@@ -42,7 +42,7 @@ class UserController {
 	}
 
 	public async authenticate(request: Request, response: Response): Promise<Response> {
-		const dataAuthenticate: IAuthenticate = { login: request.body.login, password: request.body.password };
+		const dataAuthenticate: IAuthenticate = { login: request.body.login, password: request.body.password, keepLoggedIn: request.body.keep_logged_in };
 		const result = await this.userService.authenticate(dataAuthenticate);
 		return response.json(result);
 	}

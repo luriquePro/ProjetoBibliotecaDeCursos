@@ -9,8 +9,12 @@
 - [x] Show do Usuario com Cache;
 - [x] Alterar Senha do Usuário;
 - [x] Alterar Imagem do Usuario;
+- [x] Opção de Manter-me conectado
 - [ ] Alterar Dados do usuario;
 - [ ] Deletar Conta;
+- [ ] Autenticar sem Senha
+- [ ] Registrar com confirmação de Email
+- [ ] Refatorar Autenticação e Registrar
 
 - [x] Adicionar Middleware para `RateLimit`;
 - [x] Criar função padrão para retorno de Erros;

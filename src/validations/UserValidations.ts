@@ -114,8 +114,8 @@ class UserValidations implements IUserValidation {
 		await YupValidator(shapeValidation, dataValidation, "user");
 	}
 
-	public async authenticate({ login, password }: IAuthenticate): Promise<void> {
-		const dataValidation = { login, password };
+	public async authenticate({ login, password, keepLoggedIn }: IAuthenticate): Promise<void> {
+		const dataValidation = { login, password, keepLoggedIn };
 
 		const shapeValidation = {
 			login: yup.string().required("Login is a required field").min(6, "Login must contain at least 6 characters"),
@@ -136,6 +136,7 @@ class UserValidations implements IUserValidation {
 					const specialCharacterRegex = /[^A-Za-z0-9]/;
 					return !!value && specialCharacterRegex.test(value);
 				}),
+			keepLoggedIn: yup.boolean().required("Keep logged in is a required field"),
 		};
 
 		await YupValidator(shapeValidation, dataValidation, "user");

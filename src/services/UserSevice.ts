@@ -146,7 +146,7 @@ class UserService implements IUserService {
 
 		const doAuthenticateWhenRegistering = await this.configuresService.getConfigure("do_authenticate_when_registering");
 		if (doAuthenticateWhenRegistering) {
-			return await this.authenticate({ login, password });
+			return await this.authenticate({ login, password, keepLoggedIn: false });
 		}
 
 		return DefaultReturns.created({ message: "User registered successfully", body: returnData });
@@ -298,8 +298,8 @@ class UserService implements IUserService {
 		return DefaultReturns.success({ message: "Password changed successfully", body: returnData });
 	}
 
-	public async authenticate({ login, password }: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>> {
-		await this.userValidations.authenticate({ login, password });
+	public async authenticate({ login, password, keepLoggedIn }: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>> {
+		await this.userValidations.authenticate({ login, password, keepLoggedIn });
 
 		const userWithThisLogin = await this.userRepository.findOneByObj({ $or: [{ login }, { email: login }, { cpf: login }] });
 		if (!userWithThisLogin) {
@@ -339,7 +339,7 @@ class UserService implements IUserService {
 
 		const hasSessionOpened = await this.sessionService.getUserOpenSession(userWithThisLoginAndPassword.id);
 		if (hasSessionOpened) {
-			const returnData = GenerateToken(userWithThisLoginAndPassword, hasSessionOpened);
+			const returnData = GenerateToken(userWithThisLoginAndPassword, hasSessionOpened, keepLoggedIn);
 			if (returnData.token === userWithThisLogin.current_token) {
 				await this.logger.info({
 					entityId: userWithThisLoginAndPassword.id,
@@ -352,12 +352,26 @@ class UserService implements IUserService {
 				await this.userRepository.updateUser({ id: userWithThisLoginAndPassword.id }, { $set: { report: reportUpdate } });
 				return DefaultReturns.success({ message: "Login successfully", body: returnData });
 			}
+
+			await this.logger.info({
+				entityId: userWithThisLoginAndPassword.id,
+				title: "Login successfully with session open and refresh token",
+				description: `Login successfully to ${userWithThisLoginAndPassword.login}`,
+				statusCode: 200,
+				objectData: returnData,
+			});
+
+			await this.userRepository.updateUser(
+				{ id: userWithThisLoginAndPassword.id },
+				{ $set: { report: reportUpdate, current_token: returnData.token } },
+			);
+			return DefaultReturns.success({ message: "Login successfully", body: returnData });
 		}
 
 		await this.sessionService.inactivateAllUserSessions(userWithThisLoginAndPassword.id);
 
 		const newSession = await this.sessionService.createUserSession(userWithThisLoginAndPassword.id);
-		const returnData = GenerateToken(userWithThisLoginAndPassword, newSession);
+		const returnData = GenerateToken(userWithThisLoginAndPassword, newSession, keepLoggedIn);
 
 		await this.logger.info({
 			entityId: userWithThisLoginAndPassword.id,
