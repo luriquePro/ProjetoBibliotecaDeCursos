@@ -9,10 +9,13 @@
 - [x] Show do Usuario com Cache;
 - [x] Alterar Senha do Usuário;
 - [x] Alterar Imagem do Usuario;
+- [x] Opção de Manter-me conectado
+- [x] Refatorar Autenticação e Registrar
+- [x] Deletar Conta usando Senha;
+- [ ] Deletar Conta usando Email (Requet e Confirm);
 - [ ] Alterar Dados do usuario;
-- [ ] Deletar Conta;
-- [ ] Autenticação sem Senha;
 - [ ] Linkar servidor de Email com rabbitmq;
+- [ ] Autenticar sem Senha;
 - [ ] Registrar com confirmação de Email;
 
 - [x] Adicionar Middleware para `RateLimit`;

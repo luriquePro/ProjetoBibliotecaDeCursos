@@ -17,3 +17,9 @@ export const ALLOWED_AVATAR_IMAGE_TYPES = ["jpg", "jpeg", "png"];
 export const MAX_AVATAR_IMAGE_SIZE = 100 * 1024;
 
 export const VALID_ROLES = ["admin", "user", "manager", "editor"] as Roles[];
+
+export enum DELETION_METHOD {
+	PASSWORD = "PASSWORD",
+	EMAIL = "EMAIL",
+	BACKOFFICE = "BACKOFFICE",
+}

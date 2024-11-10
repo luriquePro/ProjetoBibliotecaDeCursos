@@ -42,7 +42,7 @@ class UserController {
 	}
 
 	public async authenticate(request: Request, response: Response): Promise<Response> {
-		const dataAuthenticate: IAuthenticate = { login: request.body.login, password: request.body.password };
+		const dataAuthenticate: IAuthenticate = { login: request.body.login, password: request.body.password, keepLoggedIn: request.body.keep_logged_in };
 		const result = await this.userService.authenticate(dataAuthenticate);
 		return response.json(result);
 	}
@@ -111,6 +111,19 @@ class UserController {
 	public async logoutManyUsers(request: Request, response: Response): Promise<Response> {
 		const userIds = request.body.user_ids;
 		const result = await this.userService.logoutManyUsers(userIds);
+		return response.json(result);
+	}
+
+	public async requestDeleteAccount(request: Request, response: Response): Promise<Response> {
+		const userId = request.user!.id;
+		const result = await this.userService.requestDeleteAccount(userId);
+		return response.json(result);
+	}
+
+	public async deleteAccountByPassword(request: Request, response: Response): Promise<Response> {
+		const userId = request.user!.id;
+		const password = request.body.password;
+		const result = await this.userService.deleteAccountByPassword({ userId, password });
 		return response.json(result);
 	}
 }

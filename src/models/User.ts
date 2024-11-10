@@ -25,6 +25,28 @@ const UserSchema = new Schema<IUserMongo>(
 		current_token: { type: String, index: true },
 		avatar: { type: String, index: true },
 		roles: { type: [String], index: true, default: ["user"] },
+		deletion_info: {
+			deleted_at: { type: Date, index: true },
+			recreation_available_at: { type: Date, index: true },
+			deletion_method: { type: String, index: true },
+			old_login: { type: String, index: true },
+			old_email: { type: String, index: true },
+			old_cpf: { type: String, index: true },
+			reason: { type: String, index: true },
+		},
+		old_account: {
+			id: { type: String, index: true },
+			email: { type: String, index: true },
+			cpf: { type: String, index: true },
+			login: { type: String, index: true },
+		},
+		new_account: {
+			id: { type: String, index: true },
+			email: { type: String, index: true },
+			cpf: { type: String, index: true },
+			login: { type: String, index: true },
+			created_at: { type: Date, index: true },
+		},
 	},
 	{ timestamps: true },
 );

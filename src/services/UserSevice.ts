@@ -5,7 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
 
-import { ALLOWED_AVATAR_IMAGE_TYPES, USER_STATUS, VALID_ROLES } from "../constants/USER.ts";
+import { ALLOWED_AVATAR_IMAGE_TYPES, DELETION_METHOD, USER_STATUS, VALID_ROLES } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "../interfaces/AppInterface.ts";
 import { IConfiguresService } from "../interfaces/ConfigureInterface.ts";
 import { IRedisRepository } from "../interfaces/RedisRepository.ts";
@@ -17,6 +17,12 @@ import {
 	IChangePasswordReturn,
 	IConfirmResetPassword,
 	IConfirmResetPasswordReturn,
+	IDeleteAccountByPassword,
+	IDeleteAccountByPasswordReturn,
+	IDeleteAccountCode,
+	IGenerateTokenReturn,
+	IGetSessionAndGenerateToken,
+	IGetSessionAndGenerateTokenReturn,
 	ILogoutManyUsersReturn,
 	IRemoveRole,
 	IRemoveRoleReturn,
@@ -27,11 +33,13 @@ import {
 	IShowUserReturn,
 	IUploadAvatar,
 	IUploadAvatarReturn,
+	IUserDeletion,
 	IUserRegisterDTO,
 	IUserRegisterRepository,
 	IUserRegisterReturn,
 	IUserReport,
 	IUserRepository,
+	IUserRequestDeleteAccountReturn,
 	IUserRequestResetPasswordReturn,
 	IUserService,
 	IUserValidation,
@@ -107,6 +115,42 @@ class UserService implements IUserService {
 			throw new BadRequestError("User already exists with this login");
 		}
 
+		// Check if cpf was a old deleted user
+		const deletedUserWithThisCPF = await this.userRepository.findOneByObj({
+			deletion_info: { $exists: true },
+			"deletion_info.old_cpf": cpf,
+			status: USER_STATUS.DELETED,
+		});
+
+		if (deletedUserWithThisCPF) {
+			if (deletedUserWithThisCPF.deletion_info?.deletion_method === DELETION_METHOD.BACKOFFICE) {
+				await this.logger.error({
+					entityId: deletedUserWithThisCPF.id,
+					statusCode: 400,
+					title: "Try to recreate account after deletion by BACKOFFICE",
+					description: "Send a new request to register a new user after deletion by BACKOFFICE",
+				});
+
+				throw new BadRequestError(
+					deletedUserWithThisCPF.deletion_info.reason ??
+						"Your account has been disabled by an administrator, please contact support for more details.",
+				);
+			}
+
+			if (moment.utc().isBefore(moment.utc(deletedUserWithThisCPF.deletion_info?.recreation_available_at))) {
+				await this.logger.error({
+					entityId: deletedUserWithThisCPF.id,
+					statusCode: 400,
+					title: "Attempt to recreate the account before the available recreate date",
+					description: "Send a new request to register a new user after deletion before the available recreate date",
+				});
+
+				throw new BadRequestError(
+					`Your account was deleted at ${moment(deletedUserWithThisCPF.deletion_info?.deleted_at).format("DD/MM/YYYY HH:mm:ss")}, please wait until available recreate date: ${moment(deletedUserWithThisCPF.deletion_info?.recreation_available_at).format("DD/MM/YYYY HH:mm:ss")}`,
+				);
+			}
+		}
+
 		// Hash password
 		const hashedPassword = HashPassword(password);
 
@@ -125,6 +169,30 @@ class UserService implements IUserService {
 			login,
 			status: USER_STATUS.ACTIVE,
 		};
+
+		if (deletedUserWithThisCPF) {
+			userCreate.old_account = {
+				id: deletedUserWithThisCPF.id,
+				cpf: deletedUserWithThisCPF.deletion_info!.old_cpf,
+				email: deletedUserWithThisCPF.deletion_info!.old_email,
+				login: deletedUserWithThisCPF.deletion_info!.old_login,
+			};
+
+			await this.userRepository.updateUser(
+				{ id: deletedUserWithThisCPF.id },
+				{
+					$set: {
+						new_account: {
+							id: userCreate.id,
+							cpf: userCreate.cpf,
+							email: userCreate.email,
+							login: userCreate.login,
+							create_at: moment().utc().toDate(),
+						},
+					},
+				},
+			);
+		}
 
 		// Save User
 		const result = await this.userRepository.createUser(userCreate);
@@ -146,7 +214,8 @@ class UserService implements IUserService {
 
 		const doAuthenticateWhenRegistering = await this.configuresService.getConfigure("do_authenticate_when_registering");
 		if (doAuthenticateWhenRegistering) {
-			return await this.authenticate({ login, password });
+			const tokenDetails = await this.getUserSessionsAndGenerateToken({ user: result, keepLoggedIn: false });
+			return DefaultReturns.success({ message: "Login successfully", body: tokenDetails });
 		}
 
 		return DefaultReturns.created({ message: "User registered successfully", body: returnData });
@@ -171,6 +240,8 @@ class UserService implements IUserService {
 			throw new BadRequestError("This email is not being used, please enter a valid email address");
 		}
 
+		const passwordResetCodeExpirationMinutes = await this.configuresService.getConfigure("password_reset_code_expiration_time_in_minutes");
+
 		// Check if user is active
 		if (userWithEmailExists.status !== USER_STATUS.ACTIVE) {
 			await this.logger.error({
@@ -193,7 +264,9 @@ class UserService implements IUserService {
 				description: "Send a new request to reset the password with a code already being used",
 			});
 
-			throw new BadRequestError("You already have a reset code, please check your email");
+			throw new BadRequestError(
+				`You already have a reset code, please check your email or try again in ${moment.utc(resetCodeExists.limit_datetime).fromNow()}`,
+			);
 		}
 
 		// Generate a reset password code
@@ -204,14 +277,17 @@ class UserService implements IUserService {
 			user_id: userWithEmailExists.id,
 			email: emailRequester,
 			code: resetPasswordCode,
-			limit_datetime: moment().utc().add(5, "minutes").toISOString(),
+			limit_datetime: moment().utc().add(Number(passwordResetCodeExpirationMinutes), "minutes").toISOString(),
 		};
 
 		// Save reset password code
-		await this.redisRepository.saveResetPasswordCode(resetCode, 5 * 60);
+		await this.redisRepository.saveResetPasswordCode(resetCode, Number(passwordResetCodeExpirationMinutes) * 60);
 
 		// Data Return to Client
-		const returnData: IUserRequestResetPasswordReturn = { reset_code: resetCode.code };
+		const returnData: IUserRequestResetPasswordReturn = {
+			reset_code: resetCode.code,
+			expire_code_in_seconds: Number(passwordResetCodeExpirationMinutes) * 60,
+		};
 
 		await this.logger.info({
 			entityId: userWithEmailExists.id,
@@ -298,8 +374,8 @@ class UserService implements IUserService {
 		return DefaultReturns.success({ message: "Password changed successfully", body: returnData });
 	}
 
-	public async authenticate({ login, password }: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>> {
-		await this.userValidations.authenticate({ login, password });
+	public async authenticate({ login, password, keepLoggedIn }: IAuthenticate): Promise<IDefaultReturnsSuccess<IAuthenticateReturn>> {
+		await this.userValidations.authenticate({ login, password, keepLoggedIn });
 
 		const userWithThisLogin = await this.userRepository.findOneByObj({ $or: [{ login }, { email: login }, { cpf: login }] });
 		if (!userWithThisLogin) {
@@ -331,51 +407,37 @@ class UserService implements IUserService {
 			throw new BadRequestError("Invalid password");
 		}
 
-		const reportUpdate: Partial<IUserReport> = {
-			...userWithThisLoginAndPassword.report,
-			last_access: moment().utc().toDate(),
-			total_logins: userWithThisLoginAndPassword.report!.total_logins + 1,
-		};
-
 		const hasSessionOpened = await this.sessionService.getUserOpenSession(userWithThisLoginAndPassword.id);
 		if (hasSessionOpened) {
-			const returnData = GenerateToken(userWithThisLoginAndPassword, hasSessionOpened);
-			if (returnData.token === userWithThisLogin.current_token) {
-				await this.logger.info({
-					entityId: userWithThisLoginAndPassword.id,
-					title: "Login successfully with session open",
-					description: `Login successfully to ${userWithThisLoginAndPassword.login}`,
-					statusCode: 200,
-					objectData: returnData,
-				});
+			const reportUpdate: Partial<IUserReport> = {
+				...userWithThisLoginAndPassword.report,
+				last_access: moment().utc().toDate(),
+				total_logins: userWithThisLoginAndPassword.report!.total_logins + 1,
+			};
 
-				await this.userRepository.updateUser({ id: userWithThisLoginAndPassword.id }, { $set: { report: reportUpdate } });
-				return DefaultReturns.success({ message: "Login successfully", body: returnData });
-			}
+			const tokenDetails: IGenerateTokenReturn = {
+				email: userWithThisLoginAndPassword.email,
+				id: userWithThisLoginAndPassword.id,
+				name: userWithThisLoginAndPassword.first_name + " " + userWithThisLoginAndPassword.last_name,
+				token: userWithThisLoginAndPassword.current_token!,
+				start_session: hasSessionOpened.start_session,
+				end_session: hasSessionOpened.end_session,
+			};
+
+			await this.logger.info({
+				entityId: userWithThisLoginAndPassword.id,
+				title: "Login successfully with session open",
+				description: `Login successfully to ${userWithThisLoginAndPassword.login}`,
+				statusCode: 200,
+				objectData: tokenDetails,
+			});
+
+			await this.userRepository.updateUser({ id: userWithThisLoginAndPassword.id }, { $set: { report: reportUpdate } });
+			return DefaultReturns.success({ message: "Login successfully", body: tokenDetails });
 		}
 
-		await this.sessionService.inactivateAllUserSessions(userWithThisLoginAndPassword.id);
-
-		const newSession = await this.sessionService.createUserSession(userWithThisLoginAndPassword.id);
-		const returnData = GenerateToken(userWithThisLoginAndPassword, newSession);
-
-		await this.logger.info({
-			entityId: userWithThisLoginAndPassword.id,
-			title: "Login successfully with new session",
-			description: `Login successfully to ${userWithThisLoginAndPassword.login}`,
-			statusCode: 200,
-			objectData: returnData,
-		});
-
-		if (!userWithThisLoginAndPassword.report!.first_access) {
-			reportUpdate.first_access = moment().utc().toDate();
-		}
-
-		await this.userRepository.updateUser(
-			{ id: userWithThisLoginAndPassword.id },
-			{ $set: { report: reportUpdate, current_token: returnData.token } },
-		);
-		return DefaultReturns.success({ message: "Login successfully", body: returnData });
+		const result = await this.getUserSessionsAndGenerateToken({ user: userWithThisLoginAndPassword, keepLoggedIn });
+		return DefaultReturns.success({ message: "Login successfully", body: result });
 	}
 
 	public async getUserProfile(userId: string, isAdmin = false): Promise<IDefaultReturnsSuccess<IShowUserReturn>> {
@@ -698,6 +760,187 @@ class UserService implements IUserService {
 		await Promise.allSettled([...inactiveSessionsPromise, revomeTokens]);
 
 		return DefaultReturns.success({ message: "Logout successfully" });
+	}
+
+	public async requestDeleteAccount(userId: string): Promise<IDefaultReturnsSuccess<IUserRequestDeleteAccountReturn>> {
+		// Check if email exists
+		const userWithThisId = await this.userRepository.findUserById(userId);
+		if (!userWithThisId) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "This email is not being used",
+				description: "Send a new request to request delete account with no user",
+			});
+
+			throw new NotFoundError("User does not Exists");
+		}
+
+		const deleteAccountCodeExpirationMinutes = await this.configuresService.getConfigure("delete_account_code_expiration_time_in_minutes");
+
+		// Check if user is active
+		if (userWithThisId.status !== USER_STATUS.ACTIVE) {
+			await this.logger.error({
+				entityId: userWithThisId.id,
+				statusCode: 400,
+				title: "This user is not active",
+				description: "Send a new request to delete account with an inactive user",
+			});
+
+			throw new BadRequestError("This user is not active, please contact your administrator");
+		}
+
+		// Check if user just have a code
+		const deleteAccountCodeExists = await this.redisRepository.getDeleteAccountCode(userId);
+		if (deleteAccountCodeExists) {
+			await this.logger.error({
+				entityId: userWithThisId.id,
+				statusCode: 400,
+				title: "You already have a reset code",
+				description: "Send a new request to delete account with a code already being used",
+			});
+
+			throw new BadRequestError(
+				`You already have a delete account code, please check your email or try again in ${moment.utc(deleteAccountCodeExists.limit_datetime).fromNow()}`,
+			);
+		}
+
+		// Generate a reset password code
+		const deleteAccountCode = IdGenerate();
+
+		// Create a resetCode object
+		const deleteCodeObject: IDeleteAccountCode = {
+			user_id: userWithThisId.id,
+			code: deleteAccountCode,
+			limit_datetime: moment().utc().add(Number(deleteAccountCodeExpirationMinutes), "minutes").toISOString(),
+		};
+
+		// Save reset password code
+		await this.redisRepository.saveDeleteAccountCode(deleteCodeObject, Number(deleteAccountCodeExpirationMinutes) * 60);
+
+		// Data Return to Client
+		const returnData: IUserRequestDeleteAccountReturn = {
+			delete_account_code: deleteCodeObject.code,
+			expire_code_in_seconds: Number(deleteAccountCodeExpirationMinutes) * 60,
+		};
+
+		await this.logger.info({
+			entityId: userWithThisId.id,
+			title: "Reset code sent successfully",
+			description: `Reset code sent successfully to ${userWithThisId.login}`,
+			statusCode: 200,
+			objectData: returnData,
+		});
+
+		return DefaultReturns.success({ message: "Reset code sent successfully", body: returnData });
+	}
+
+	public async deleteAccountByPassword({
+		password,
+		userId,
+	}: IDeleteAccountByPassword): Promise<IDefaultReturnsSuccess<IDeleteAccountByPasswordReturn>> {
+		await this.userValidations.deleteAccountByPassword({ password, userId });
+
+		const userWithThisId = await this.userRepository.findUserById(userId);
+		if (!userWithThisId) {
+			await this.logger.error({
+				entityId: "NE",
+				statusCode: 400,
+				title: "This email is not being used",
+				description: "Send a new request to delete account by password with user not exists",
+			});
+
+			throw new NotFoundError("User does not Exists");
+		}
+
+		// Check if this password is correct
+		const hashedPassword = HashPassword(password);
+		const userWithThisIdAndPassword = await this.userRepository.findOneByObj({ id: userWithThisId.id, password: hashedPassword });
+
+		if (!userWithThisIdAndPassword) {
+			await this.logger.error({
+				entityId: userWithThisId.id,
+				statusCode: 400,
+				title: "Invalid password",
+				description: "Send a new request to delete account by password with an invalid password",
+			});
+
+			throw new BadRequestError("Enter a valid password");
+		}
+
+		const accountRecreationWaitTimeInHours = await this.configuresService.getConfigure("account_recreation_wait_time_in_hours");
+
+		const deleteInfo: IUserDeletion = {
+			deleted_at: moment().utc().toDate(),
+			deletion_method: DELETION_METHOD.PASSWORD,
+			old_cpf: userWithThisIdAndPassword.cpf,
+			old_email: userWithThisIdAndPassword.email,
+			old_login: userWithThisIdAndPassword.login,
+			recreation_available_at: moment().utc().add(Number(accountRecreationWaitTimeInHours), "hours").toDate(),
+		};
+
+		await this.userRepository.updateUser(
+			{
+				id: userWithThisId.id,
+			},
+			{
+				$set: {
+					deletion_info: deleteInfo,
+					status: USER_STATUS.DELETED,
+					cpf: userWithThisIdAndPassword.cpf + "_" + userWithThisIdAndPassword.id,
+					email: userWithThisIdAndPassword.email + "_" + userWithThisIdAndPassword.id,
+					login: userWithThisIdAndPassword.login + "_" + userWithThisIdAndPassword.id,
+				},
+				$unset: { avatar: 1, password: 1 },
+			},
+		);
+
+		await this.sessionService.inactivateAllUserSessions(userWithThisIdAndPassword.id);
+
+		if (userWithThisIdAndPassword.avatar) {
+			const __DIRNAME = path.dirname(fileURLToPath(import.meta.url));
+			const pathOldAvatar = path.join(__DIRNAME, "..", "tmp", userWithThisIdAndPassword.avatar);
+			const unlinkFileAsync = promisify(fs.unlink);
+			await unlinkFileAsync(pathOldAvatar);
+		}
+
+		await this.logger.info({
+			entityId: userWithThisId.id,
+			title: "Delete account by password successfully",
+			description: `Delete account by password successfully to ${userWithThisId.login}`,
+			statusCode: 200,
+			objectData: deleteInfo,
+		});
+
+		return DefaultReturns.success({ message: "Delete account by password successfully", body: { logout: true } });
+	}
+
+	private async getUserSessionsAndGenerateToken({ user, keepLoggedIn }: IGetSessionAndGenerateToken): Promise<IGetSessionAndGenerateTokenReturn> {
+		const reportUpdate: Partial<IUserReport> = {
+			...user.report,
+			last_access: moment().utc().toDate(),
+			total_logins: user.report!.total_logins + 1,
+		};
+
+		await this.sessionService.inactivateAllUserSessions(user.id);
+
+		const session = await this.sessionService.createUserSession(user.id);
+		const returnData = GenerateToken({ user, session, keepLoggedIn });
+
+		await this.logger.info({
+			entityId: user.id,
+			title: "Login successfully with new session",
+			description: `Login successfully to ${user.login}`,
+			statusCode: 200,
+			objectData: returnData,
+		});
+
+		if (!user.report!.first_access) {
+			reportUpdate.first_access = moment().utc().toDate();
+		}
+
+		await this.userRepository.updateUser({ id: user.id }, { $set: { report: reportUpdate, current_token: returnData.token } });
+		return returnData;
 	}
 }
 

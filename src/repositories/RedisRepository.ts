@@ -1,7 +1,7 @@
 import { captureRedisAction } from "../decorators/captureRedisAction.ts";
 import { IRequestCounter } from "../interfaces/AppInterface.ts";
 import { IRedisRepository } from "../interfaces/RedisRepository.ts";
-import { IResetPasswordCode, IShowUserReturn } from "../interfaces/UserInterface.ts";
+import { IDeleteAccountCode, IResetPasswordCode, IShowUserReturn } from "../interfaces/UserInterface.ts";
 
 export class RedisRepository implements IRedisRepository {
 	constructor(private readonly redisClient: any) {
@@ -64,5 +64,23 @@ export class RedisRepository implements IRedisRepository {
 	public async delShowUserCache(userId: string): Promise<void> {
 		const key = `show-user-${userId}`;
 		await this.redisClient.del(key);
+	}
+
+	@captureRedisAction("saveDeleteAccountCode")
+	public async saveDeleteAccountCode(deleteAccountCode: IDeleteAccountCode, timeEXP: number): Promise<void> {
+		const key = `delete-account-code-${deleteAccountCode.user_id}`;
+		await this.redisClient.set(key, JSON.stringify(deleteAccountCode), { EX: timeEXP });
+	}
+
+	@captureRedisAction("getDeleteAccountCode")
+	public async getDeleteAccountCode(userId: string): Promise<IDeleteAccountCode | null> {
+		const key = `delete-account-code-${userId}`;
+		const result = await this.redisClient.get(key);
+
+		if (result) {
+			return JSON.parse(result);
+		}
+
+		return null;
 	}
 }

@@ -1,9 +1,35 @@
 import { File } from "formidable";
 import mongoose, { FilterQuery, UpdateQuery } from "mongoose";
-import { USER_STATUS } from "../constants/USER.ts";
+import { DELETION_METHOD, USER_STATUS } from "../constants/USER.ts";
 import { IDefaultReturnsCreated, IDefaultReturnsSuccess } from "./AppInterface.ts";
+import { ISessionDTO } from "./SessionInterface.ts";
 
 export type Roles = "user" | "admin" | "manager" | "editor";
+
+export interface IUserDeletion {
+	deleted_at: Date;
+	recreation_available_at: Date;
+	deletion_method: DELETION_METHOD;
+	old_login: string;
+	old_email: string;
+	old_cpf: string;
+	reason?: string;
+}
+
+export interface IUserOldAccount {
+	id: string;
+	login: string;
+	email: string;
+	cpf: string;
+}
+
+export interface IUserNewAccount {
+	id: string;
+	login: string;
+	email: string;
+	cpf: string;
+	created_at: Date;
+}
 
 /* 
 	#Register
@@ -44,6 +70,9 @@ export interface IUserDTO {
 	avatar_url?: string;
 	created_at: Date;
 	roles: Roles[];
+	deletion_info?: IUserDeletion;
+	old_account?: IUserOldAccount;
+	new_account?: IUserNewAccount;
 }
 
 export interface IUserReport {
@@ -82,6 +111,7 @@ export interface IResetPasswordCode {
 
 export interface IUserRequestResetPasswordReturn {
 	reset_code: string;
+	expire_code_in_seconds: number;
 }
 
 export interface IConfirmResetPassword {
@@ -96,6 +126,13 @@ export interface IConfirmResetPasswordReturn {
 export interface IAuthenticate {
 	login: string;
 	password: string;
+	keepLoggedIn: boolean;
+}
+
+export interface IGenerateToken {
+	user: IUserDTO;
+	session: ISessionDTO;
+	keepLoggedIn: boolean;
 }
 
 export interface IGenerateTokenReturn {
@@ -159,6 +196,30 @@ export interface IRemoveRole {
 export interface IRemoveRoleReturn {}
 export interface ILogoutManyUsersReturn {}
 
+export interface IGetSessionAndGenerateToken {
+	user: IUserDTO;
+	keepLoggedIn: boolean;
+}
+
+export interface IGetSessionAndGenerateTokenReturn extends IGenerateTokenReturn {}
+export interface IUserRequestDeleteAccountReturn {
+	delete_account_code: string;
+	expire_code_in_seconds: number;
+}
+
+export interface IDeleteAccountCode {
+	code: string;
+	limit_datetime: string;
+	user_id: string;
+}
+
+export interface IDeleteAccountByPassword {
+	userId: string;
+	password: string;
+}
+
+export interface IDeleteAccountByPasswordReturn {}
+
 // Interface of Class UserValidations
 export interface IUserValidation {
 	registerUser(dataValidation: IUserRegisterDTO): Promise<void>;
@@ -166,6 +227,7 @@ export interface IUserValidation {
 	confirmResetPassword(dataConfirmResetPassword: IConfirmResetPassword): Promise<void>;
 	authenticate(dataAuthenticate: IAuthenticate): Promise<void>;
 	changePassword(dataChangePassword: IChangePassword): Promise<void>;
+	deleteAccountByPassword(dataDeleteAccountByPassword: IDeleteAccountByPassword): Promise<void>;
 }
 
 // Interface of Class UserService
@@ -182,6 +244,8 @@ export interface IUserService {
 	setRoles(dataSetRole: ISetRole): Promise<IDefaultReturnsSuccess<ISetRoleReturn>>;
 	removeRoles(dataSetRole: IRemoveRole): Promise<IDefaultReturnsSuccess<IRemoveRoleReturn>>;
 	logoutManyUsers(userIds: string[]): Promise<IDefaultReturnsSuccess<ILogoutManyUsersReturn>>;
+	requestDeleteAccount(userId: string): Promise<IDefaultReturnsSuccess<IUserRequestDeleteAccountReturn>>;
+	deleteAccountByPassword(dataDeleteAccountByPassword: IDeleteAccountByPassword): Promise<IDefaultReturnsSuccess<IDeleteAccountByPasswordReturn>>;
 }
 
 // Interface of Class UserRepository
